@@ -22,9 +22,9 @@ public class Tiles : Gtk.Box{
 	}
 
 
-		/*************************************/
-		/*************   Source   ************/
-		/*************************************/
+	/*************************************/
+	/*************   Source   ************/
+	/*************************************/
 
 	private void init_event_source () {
 		// Prepare the DragNDrop
@@ -33,6 +33,13 @@ public class Tiles : Gtk.Box{
 			drag_source.set_icon(this.image.paintable, (int)x, (int)y);
 			paintable_tmp = this.image.paintable;
 			this.image.paintable = null;
+
+			message("Idle inhibit");
+			var native = ((Widget)window).get_native ();
+			var surface = native.get_surface ();
+			var toplevel = surface as Gdk.Toplevel; 
+			toplevel.inhibit_system_shortcuts (null);
+
 			return new Gdk.ContentProvider.for_value(this);
 		});
 
@@ -44,10 +51,30 @@ public class Tiles : Gtk.Box{
 		});
 	}
 
+	public void swap(Tiles target) {
+		// Swap ID
+		int tmp_id = this.id;
+		this.id = target.id;
+		target.id = tmp_id;
 
-		/*************************************/
-		/*************   Target  *************/
-		/*************************************/
+
+		var tmp1 = target.image.paintable;
+		target.image.paintable = null;
+
+		var tmp2 = this.image.paintable;
+		this.image.paintable = null;
+
+		// Swap Paintable Reference
+		target.image.paintable = tmp2;
+		this.image.paintable = tmp1;
+
+		onMove();
+	}
+
+
+	/*************************************/
+	/*************   Target  *************/
+	/*************************************/
 
 	private void init_event_target () {
 		
@@ -55,17 +82,20 @@ public class Tiles : Gtk.Box{
 		drag_target.on_drop.connect((drag)=>{
 			var drop = (Tiles)drag.get_object ();
 
-			// Swap the images
 			var tmp = drop.paintable_tmp;
 			drop.paintable_tmp = null;
-			drop.image.paintable = this.image.paintable;
-			this.image.paintable = tmp;
+			drop.image.paintable = tmp;
+
+			/////////////////////////////////////////////////////////////////
+			this.swap(drop);
 
 			return true;
 		});
 	}
 
-	private int id;
+	public signal void onMove ();
+
+	public int id {get;set;}
 	private Gtk.DragSource drag_source;
 	private Gtk.DropTarget drag_target;
 	private Gtk.Image image;

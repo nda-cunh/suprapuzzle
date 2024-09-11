@@ -7,6 +7,7 @@ public class Puzzle : Gtk.Grid{
 		init_puzzle (7, 4);
 	}
 
+	private Tiles []tab;
 	private void init_puzzle (int row, int col) {
 		var img = "/nfs/homes/nda-cunh/Pictures/Wallpapers/yourname.png";
 		var img_surface = new Cairo.ImageSurface.from_png (img);
@@ -17,17 +18,51 @@ public class Puzzle : Gtk.Grid{
 		int size_w = width / row;
 		int size_h = height / col;
 
+		tab = {};
 		var i = 0;
 		var j = 0;
 		var n = 0;
 		while (j != col) {
 			var ig = create_image_from_offset (img_surface, size_w * i, size_h * j, size_w, (size_h));
-			base.attach(new Tiles(ig, n), i, j, 1, 1);
+			var tiles = new Tiles(ig, n);
+			base.attach(tiles, i, j, 1, 1);
+			tab += tiles;
 			++i;
+			++n;
 			if (i == row) {
 				i = 0;
 				j++;
 			}
+		}
+		shuffle();
+		
+	}
+
+	// test if the puzzle is finish (all tiles )
+	public void test () {
+		int tmp_max = 0;
+		foreach (var t in tab) {
+			if (tmp_max == t.id) {
+				++tmp_max;
+			}
+			else
+				return ;
+		}
+		onFinish ();
+	}
+
+	public signal void onFinish ();
+
+	private void shuffle () {
+		foreach (var i in tab) {
+			i.onMove.connect(test);
+		}
+
+		for (int i = 0; i < 1; ++i)
+		{
+			int r1 = Random.int_range (0, tab.length);
+			int r2 = Random.int_range (0, tab.length);
+			tab[r1].swap(tab[r2]);
 		}
 	}
 

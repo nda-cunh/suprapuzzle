@@ -5,6 +5,8 @@ box{ background-color:black; }
 box:hover { opacity:0.9; background-color:black; }
 """;
 
+public unowned Gtk.ApplicationWindow window; 
+
 public class SupraPuzzle : Gtk.Application {
 	construct {
 		application_id = "com.SupraPuzzle.App";
@@ -18,20 +20,70 @@ public class SupraPuzzle : Gtk.Application {
 
 	public override void activate () {
 		// Create the Window fullscreen 
+
+		var my_puzzle = new Puzzle ();
+
 		var win = new Gtk.ApplicationWindow (this) {
 			fullscreened=true,
 			default_width=1920,
 			default_height=1080,
 		};
+		window = win;
+
 
 		init_css ();
 
-		// win.close_request.connect (()=> {
-			// return true;
-		// });
-		// win.fullscreen();
+		// event mousse key releass controller
 
-		win.child = new Puzzle();
+		var event_controller = new Gtk.EventControllerMotion ();
+
+		event_controller.motion.connect ((x, y) => {
+			print("motion \n");
+			var native = ((Widget)window).get_native ();
+			var surface = native.get_surface ();
+			var toplevel = surface as Gdk.Toplevel; 
+			toplevel.inhibit_system_shortcuts (null);
+		});
+
+		var event_controller_key = new Gtk.EventControllerKey ();
+
+		event_controller_key.key_pressed.connect (() => {
+			print("key pressed\n");
+			var native = ((Widget)window).get_native ();
+			var surface = native.get_surface ();
+			var toplevel = surface as Gdk.Toplevel; 
+			toplevel.inhibit_system_shortcuts (null);
+			return true;
+		});
+
+		((Widget)win).add_controller (event_controller_key);
+		((Widget)win).add_controller (event_controller);
+
+		Idle.add (()=> {
+			message("Idle inhibit");
+			var native = ((Widget)win).get_native ();
+			var surface = native.get_surface ();
+			var toplevel = surface as Gdk.Toplevel; 
+			toplevel.inhibit_system_shortcuts (null);
+			return false;
+		});
+
+
+		Timeout.add (500, ()=> {
+			window.maximize ();
+			window.fullscreen ();
+			return true;
+		});
+		window.close_request.connect (()=> {
+			return true;
+		});
+
+		my_puzzle.onFinish.connect (()=> {
+			win.close ();
+			win.dispose ();
+		});
+
+		win.child = my_puzzle;
 		win.present ();
 	}
 

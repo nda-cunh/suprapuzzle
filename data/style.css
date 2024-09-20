@@ -1,0 +1,30 @@
+#menu {
+	padding: 0px;
+	background-color: rgba(0, 0, 0, 0.2);
+}
+
+#menu_right {
+	padding: 20px;
+	background-color: rgba(0.2, 0.2, 0.2, 1.0);
+}
+
+.none {
+	background-color: rgba(0, 0, 0, 0.0);
+	opacity: 0.0;
+}
+
+.h1 {
+	font-size: 4em;
+}
+
+.h3 {
+	font-size: 1em;
+}
+
+box {
+	background-color:black;
+}
+
+box:hover {
+	opacity:0.9; background-color:black;
+}

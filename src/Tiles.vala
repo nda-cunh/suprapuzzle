@@ -53,11 +53,14 @@ public class Tiles : Gtk.Box {
 	* Swap the tiles with the target
 	*/
 	public void swap(Tiles target) {
+		// if the target is grabed block the swap
+		if (target.image.paintable == null || this.image.paintable == null)
+			return;
+
 		// Swap ID
 		int tmp_id = this.id;
 		this.id = target.id;
 		target.id = tmp_id;
-
 
 		var tmp1 = target.image.paintable;
 		target.image.paintable = null;

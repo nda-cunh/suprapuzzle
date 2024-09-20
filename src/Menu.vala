@@ -9,9 +9,12 @@ public class Menu : Gtk.Box {
 	private TimerClock timer;
 	private Button button;
 	private Box box_menu;
+	private Password password;
 
 	construct {
 		orientation = Gtk.Orientation.HORIZONTAL;
+		password = new Password ();
+		password.onGoodPassword.connect (this.finish);
 		timer = new TimerClock();
 		name = "menu";
 	}
@@ -25,7 +28,7 @@ public class Menu : Gtk.Box {
 	}
 
 	private void init_button_left() {
-		button = new Gtk.Button () {
+		button = new Button () {
 			css_classes = {"none"},
 			has_frame = false,
 			opacity = 0,
@@ -37,20 +40,21 @@ public class Menu : Gtk.Box {
 
 	private void init_menu_right () {
 		// SupraPuzzle title
-		var label_title = new Gtk.Label ("SupraPuzzle") {
+		var label_title = new Label ("SupraPuzzle") {
 			css_classes = {"h1"}
 		};
 
 		// Box menu right
-		box_menu = new Gtk.Box (Gtk.Orientation.VERTICAL, 10){
+		box_menu = new Box (Orientation.VERTICAL, 10){
 			name = "menu_right",
 		};
 		// add title and timer
 		box_menu.append(label_title);
 		box_menu.append(timer.label);
+		box_menu.append(password);
 
 		// Animation of box_menu
-		revealer = new Gtk.Revealer () {
+		revealer = new Revealer () {
 			reveal_child = true,
 			transition_duration = 300,
 			transition_type = RevealerTransitionType.SLIDE_LEFT,
@@ -88,3 +92,40 @@ public class Menu : Gtk.Box {
 	public signal void onFinish();
 }
 
+
+class  Password : Box {
+	private Label label;
+	private Entry entry;
+
+	construct {
+		orientation = Gtk.Orientation.VERTICAL;
+		spacing = 10;
+		valign = Gtk.Align.END;
+		vexpand = true;
+	}
+
+	private const string password = "12345678";
+
+	public Password () {
+		label = new Label ("Password") {
+			css_classes = {"h3"}
+		};
+		entry = new Entry () {
+			visibility = false,
+			activates_default = true,
+			max_length = password.length,
+			width_chars = password.length,
+			input_purpose = InputPurpose.NUMBER
+		};
+		entry.changed.connect (()=> {
+			if (entry.text == password) {
+				this.onGoodPassword();
+			}
+		});
+
+		append(label);
+		append(entry);
+	}
+
+	public signal void onGoodPassword();
+}

@@ -4,7 +4,7 @@
  * 
  * a simple widget that shows a timer clock begining by 30 minutes
  */
-public class TimerClock {
+public class TimerClock : Object {
 
 	// 30 minutes (1800 seconds)
 	const double time_max = 1800;

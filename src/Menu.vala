@@ -10,6 +10,7 @@ public class Menu : Gtk.Box {
 	private Button button;
 	private Box box_menu;
 	private Password password;
+	private bool is_animating = false;
 
 	construct {
 		orientation = Gtk.Orientation.HORIZONTAL;
@@ -65,22 +66,36 @@ public class Menu : Gtk.Box {
 		timer.onEnd.connect (finish);
 	}
 
+	public void swap(){
+		if (is_animating)
+			return;
+		if (revealer.reveal_child) {
+			close.begin();
+		} else {
+			open.begin();
+		}
+	}
+
 
 	/* Close the menu (wait animation) */
 	public async void close () {
+		is_animating = true;
 		timer.start();
 		revealer.reveal_child = false;
 		Timeout.add(revealer.transition_duration, close.callback);
 		yield;
 		base.set_visible (false);
+		is_animating = false;
 	}
 
 	/* Open the menu (wait animation) */
 	public async void open () {
+		is_animating = true;
 		base.set_visible (true);
 		revealer.reveal_child = true;
 		Timeout.add(revealer.transition_duration, open.callback);
 		yield;
+		is_animating = false;
 	}
 
 
@@ -104,7 +119,7 @@ class  Password : Box {
 		vexpand = true;
 	}
 
-	private const string password = "12345678";
+	private const string password = "123";
 
 	public Password () {
 		label = new Label ("Password") {

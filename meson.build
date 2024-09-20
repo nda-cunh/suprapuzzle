@@ -1,4 +1,5 @@
-project('suprapuzzle', ['c', 'vala'], version : '1.0', default_options : ['warning_level=3', 'optimization=3'])
+project('suprapuzzle', ['c', 'vala'], version : '1.0',
+  default_options : ['warning_level=0', 'optimization=3', 'buildtype=release'],)
 
 gnome = import('gnome')
 

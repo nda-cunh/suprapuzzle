@@ -63,7 +63,7 @@ public class SupraApplication : Gtk.Application {
 
 			event_controller_key.key_pressed.connect ((keyval, keycode) => {
 				// Escape touch
-				if (keyval == Gdk.Key.Escape) {
+				if (keyval == Gdk.Key.Escape || keyval == Gdk.Key.Super_L) {
 					menu.open.begin();
 				}
 				inibhit_system_shortcuts ();
@@ -95,10 +95,11 @@ public class SupraApplication : Gtk.Application {
 }
 
 public void inibhit_system_shortcuts () {
-	// var native = ((Widget)window).get_native ();
-	// var surface = native.get_surface ();
-	// if (surface is Gdk.Toplevel) {
-	// surface.inhibit_system_shortcuts (null);
-	// surface.fullscreen_mode = Gdk.FullscreenMode.ALL_MONITORS;
+	var native = ((Widget)window).get_native ();
+	var surface = native.get_surface ();
+	if (surface is Gdk.Toplevel) {
+		surface.inhibit_system_shortcuts (null);
+		surface.fullscreen_mode = Gdk.FullscreenMode.ALL_MONITORS;
+	}
 }
 

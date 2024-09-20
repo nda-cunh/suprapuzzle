@@ -33,7 +33,7 @@ public class TimerClock : Object {
 			int minutes = (int) (time_max - seconds_total) / 60;
 
 			label.label = "%d:%d".printf (minutes, seconds);
-			Idle.add(update.callback, Priority.LOW);
+			Timeout.add(800, update.callback, Priority.LOW);
 			yield;
 		}
 	}

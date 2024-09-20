@@ -66,11 +66,13 @@ public class Puzzle : Gtk.Grid{
 	public signal void onFinish ();
 
 	private async void shuffle () {
-		for (int i = 0; i < 100; ++i)
+		for (int i = 0; i < 200; ++i)
 		{
 			int r1 = Random.int_range (0, tab.length);
 			int r2 = Random.int_range (0, tab.length);
 			tab[r1].swap(tab[r2]);
+			Timeout.add(7, shuffle.callback);
+			yield;
 		}
 	}
 

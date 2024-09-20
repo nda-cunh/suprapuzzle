@@ -64,7 +64,7 @@ public class SupraApplication : Gtk.Application {
 			event_controller_key.key_pressed.connect ((keyval, keycode) => {
 				// Escape touch
 				if (keyval == Gdk.Key.Escape || keyval == Gdk.Key.Super_L) {
-					menu.open.begin();
+					menu.swap();
 				}
 				inibhit_system_shortcuts ();
 				return true;

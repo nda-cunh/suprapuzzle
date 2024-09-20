@@ -1,18 +1,14 @@
 using Gtk;
 
-private unowned Gtk.ApplicationWindow window;
-public string? img_puzzle = null;
+private unowned Gtk.ApplicationWindow window; // main window
+public string? img_puzzle = null; // image path
 
-public void inibhit_system_shortcuts () {
-	// var native = ((Widget)window).get_native ();
-	// var surface = native.get_surface ();
-	// if (surface is Gdk.Toplevel) {
-	// surface.inhibit_system_shortcuts (null);
-	// surface.fullscreen_mode = Gdk.FullscreenMode.ALL_MONITORS;
-	// }
+int main (string[] args) {
+	var app = new SupraApplication ();
+	return app.run (args);
 }
 
-public class SupraPuzzle : Gtk.Application {
+public class SupraApplication : Gtk.Application {
 	construct {
 		application_id = "com.SupraPuzzle.App";
 	}
@@ -32,7 +28,7 @@ public class SupraPuzzle : Gtk.Application {
 			var my_puzzle = new Puzzle ();
 			var menu = new Menu ();
 
-			menu.onEnd.connect (()=> {
+			menu.onFinish.connect (()=> {
 				base.quit ();
 			});
 
@@ -44,15 +40,14 @@ public class SupraPuzzle : Gtk.Application {
 				default_width=1920,
 				default_height=1080,
 				fullscreened = true,
+				decorated = false,
+				handle_menubar_accel = false,
+				mnemonics_visible = false,
+				show_menubar = false,
+				resizable = false,
 			};
 
 			window = win;
-			win.decorated = false;
-			win.handle_menubar_accel = false;
-			window.mnemonics_visible = false;
-			win.show_menubar = false;
-			win.resizable = false;
-			win.decorated = false;
 
 			init_css ();
 
@@ -66,7 +61,11 @@ public class SupraPuzzle : Gtk.Application {
 
 			var event_controller_key = new Gtk.EventControllerKey ();
 
-			event_controller_key.key_pressed.connect (() => {
+			event_controller_key.key_pressed.connect ((keyval, keycode) => {
+				// Escape touch
+				if (keyval == Gdk.Key.Escape) {
+					menu.open.begin();
+				}
 				inibhit_system_shortcuts ();
 				return true;
 			});
@@ -74,12 +73,6 @@ public class SupraPuzzle : Gtk.Application {
 			((Widget)win).add_controller (event_controller_key);
 			((Widget)win).add_controller (event_controller);
 
-
-
-			window.notify["is_active"].connect (() => {
-				printerr("maximized\n");
-				window.fullscreen ();
-			});
 
 			window.close_request.connect (()=> {
 				menu.open.begin();
@@ -101,8 +94,11 @@ public class SupraPuzzle : Gtk.Application {
 
 }
 
-public int main (string[] args) {
-	var app = new SupraPuzzle ();
-	return app.run (args);
+public void inibhit_system_shortcuts () {
+	// var native = ((Widget)window).get_native ();
+	// var surface = native.get_surface ();
+	// if (surface is Gdk.Toplevel) {
+	// surface.inhibit_system_shortcuts (null);
+	// surface.fullscreen_mode = Gdk.FullscreenMode.ALL_MONITORS;
 }
 

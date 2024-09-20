@@ -1,12 +1,14 @@
 using Gtk;
 
-public class Tiles : Gtk.Box{
+public class Tiles : Gtk.Box {
+
 	public Tiles (Gtk.Image image, int id) {
 		this.id = id;
 		this.image = image;
 		image.hexpand = true;
 		image.vexpand = true;
 
+		// DragNDrop
 		drag_source = new Gtk.DragSource ();
 		drag_target = new Gtk.DropTarget (this.get_type (), Gdk.DragAction.COPY);
 
@@ -16,6 +18,7 @@ public class Tiles : Gtk.Box{
 
 		// Add the image widget to the box
 		base.append(image);
+
 		// connect the events controller
 		base.add_controller (drag_source);
 		base.add_controller (drag_target);
@@ -46,6 +49,9 @@ public class Tiles : Gtk.Box{
 		});
 	}
 
+	/**
+	* Swap the tiles with the target
+	*/
 	public void swap(Tiles target) {
 		// Swap ID
 		int tmp_id = this.id;
@@ -72,7 +78,7 @@ public class Tiles : Gtk.Box{
 	/*************************************/
 
 	private void init_event_target () {
-		
+
 		// When the tiles is dropped on another target
 		drag_target.on_drop.connect((drag)=>{
 			var drop = (Tiles)drag.get_object ();
@@ -87,9 +93,10 @@ public class Tiles : Gtk.Box{
 		});
 	}
 
+	/* Signal when the tiles is moved */
 	public signal void onMove ();
 
-	public int id {get;set;}
+	public int id {get; set;}
 	private Gtk.DragSource drag_source;
 	private Gtk.DropTarget drag_target;
 	private Gtk.Image image;

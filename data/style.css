@@ -15,10 +15,16 @@
 
 .h1 {
 	font-size: 4em;
+	color: #ffffff;
 }
 
 .h3 {
 	font-size: 1em;
+	color: #ffffff;
+}
+
+entry {
+	background-color: rgb(0.8, 0.8, 0.8);
 }
 
 box {

@@ -2,21 +2,29 @@ using Gtk;
 
 public class Puzzle : Gtk.Grid{
 
+	private Tiles []tab;
 
-	public Puzzle () {
+	public Puzzle () throws Error {
 		init_puzzle (7, 4);
 	}
 
-	private Tiles []tab;
-	private void init_puzzle (int row, int col) {
-		var img = "/nfs/homes/nda-cunh/Pictures/Wallpapers/yourname.png";
-		var img_surface = new Cairo.ImageSurface.from_png (img);
+	private void init_puzzle (int row, int col) throws Error {
+	
+		{
+			var bytes = resources_lookup_data (@"/data/img$(Random.int_range (1, 8)).png", ResourceLookupFlags.NONE);
+			FileUtils.open_tmp ("my_tmpXXXXXX.png", out img_puzzle);
+			print(img_puzzle);
+			FileUtils.set_data (img_puzzle, bytes.get_data ());
+		}
+		var img_surface = new Cairo.ImageSurface.from_png (img_puzzle);
 
 		int height = img_surface.get_height();
 		int width = img_surface.get_width();
 
 		int size_w = width / row;
 		int size_h = height / col;
+
+
 
 		tab = {};
 		var i = 0;
@@ -34,8 +42,12 @@ public class Puzzle : Gtk.Grid{
 				j++;
 			}
 		}
-		shuffle();
-		
+		foreach (var e in tab) {
+			e.onMove.connect(test);
+		}
+
+		shuffle.begin ();
+
 	}
 
 	// test if the puzzle is finish (all tiles )
@@ -53,12 +65,8 @@ public class Puzzle : Gtk.Grid{
 
 	public signal void onFinish ();
 
-	private void shuffle () {
-		foreach (var i in tab) {
-			i.onMove.connect(test);
-		}
-
-		for (int i = 0; i < 1; ++i)
+	private async void shuffle () {
+		for (int i = 0; i < 100; ++i)
 		{
 			int r1 = Random.int_range (0, tab.length);
 			int r2 = Random.int_range (0, tab.length);

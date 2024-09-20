@@ -33,13 +33,7 @@ public class Tiles : Gtk.Box{
 			drag_source.set_icon(this.image.paintable, (int)x, (int)y);
 			paintable_tmp = this.image.paintable;
 			this.image.paintable = null;
-
-			message("Idle inhibit");
-			var native = ((Widget)window).get_native ();
-			var surface = native.get_surface ();
-			var toplevel = surface as Gdk.Toplevel; 
-			toplevel.inhibit_system_shortcuts (null);
-
+			inibhit_system_shortcuts ();
 			return new Gdk.ContentProvider.for_value(this);
 		});
 
@@ -48,6 +42,7 @@ public class Tiles : Gtk.Box{
 		drag_source.drag_end.connect (()=> {
 			if (this.paintable_tmp != null)
 				this.image.paintable = this.paintable_tmp;
+			inibhit_system_shortcuts ();
 		});
 	}
 
@@ -86,7 +81,6 @@ public class Tiles : Gtk.Box{
 			drop.paintable_tmp = null;
 			drop.image.paintable = tmp;
 
-			/////////////////////////////////////////////////////////////////
 			this.swap(drop);
 
 			return true;

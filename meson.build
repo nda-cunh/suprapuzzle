@@ -18,7 +18,7 @@ asresources = gnome.compile_resources(
 # Configuration 
 ############################################
 conf_data = configuration_data()
-conf_data.set('password', '12345')
+conf_data.set('password', get_option('password'))
 
 ############################################
 # Create the executable (suprapuzzle)

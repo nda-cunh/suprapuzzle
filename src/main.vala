@@ -13,12 +13,18 @@ public class SupraApplication : Gtk.Application {
 		application_id = "com.SupraPuzzle.App";
 	}
 
+	/**
+	** Load the css style
+	**/
 	private void init_css () {
 		var provider = new Gtk.CssProvider ();
 		provider.load_from_resource ("/data/style.css");
 		Gtk.StyleContext.add_provider_for_display (Gdk.Display.get_default (), provider, 0);
 	}
 
+	/**
+	** Init the overlay
+	**/
 	public void init_overlay () throws Error {
 
 		// Create the Window fullscreen
@@ -87,6 +93,9 @@ public class SupraApplication : Gtk.Application {
 		win.present ();
 	}
 
+	/**
+	** Activate the application
+	**/
 	public override void activate () {
 		try {
 			init_overlay ();
@@ -105,4 +114,3 @@ public void inibhit_system_shortcuts () {
 		surface.fullscreen_mode = Gdk.FullscreenMode.ALL_MONITORS;
 	}
 }
-

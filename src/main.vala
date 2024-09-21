@@ -19,76 +19,79 @@ public class SupraApplication : Gtk.Application {
 		Gtk.StyleContext.add_provider_for_display (Gdk.Display.get_default (), provider, 0);
 	}
 
-	public override void activate () {
-		// Create the Window fullscreen
+	public void init_overlay () throws Error {
 
+		// Create the Window fullscreen
 		var overlay = new Gtk.Overlay();
 
+		var my_puzzle = new Puzzle ();
+		var menu = new Menu ();
+
+		menu.onFinish.connect (()=> {
+			base.quit ();
+		});
+
+
+		overlay.add_overlay (my_puzzle);
+		overlay.add_overlay (menu);
+
+		var win = new Gtk.ApplicationWindow (this) {
+			default_width=1920,
+			default_height=1080,
+			fullscreened = true,
+			decorated = false,
+			handle_menubar_accel = false,
+			mnemonics_visible = false,
+			show_menubar = false,
+			resizable = false,
+		};
+
+		window = win;
+
+		init_css ();
+
+		// event mousse key releass controller
+
+		var event_controller = new Gtk.EventControllerMotion ();
+
+		event_controller.motion.connect ((x, y) => {
+			inibhit_system_shortcuts ();
+		});
+
+		var event_controller_key = new Gtk.EventControllerKey ();
+
+		event_controller_key.key_pressed.connect ((keyval, keycode) => {
+			// Escape touch
+			if (keyval == Gdk.Key.Escape || keyval == Gdk.Key.Super_L) {
+				menu.swap();
+			}
+			inibhit_system_shortcuts ();
+			return true;
+		});
+
+		((Widget)win).add_controller (event_controller_key);
+		((Widget)win).add_controller (event_controller);
+
+
+		window.close_request.connect (()=> {
+			menu.open.begin();
+			return true;
+		});
+
+		my_puzzle.onFinish.connect (()=> {
+			win.close ();
+			win.dispose ();
+		});
+
+		win.child = overlay;
+		win.present ();
+	}
+
+	public override void activate () {
 		try {
-			var my_puzzle = new Puzzle ();
-			var menu = new Menu ();
-
-			menu.onFinish.connect (()=> {
-				base.quit ();
-			});
-
-
-			overlay.add_overlay (my_puzzle);
-			overlay.add_overlay (menu);
-
-			var win = new Gtk.ApplicationWindow (this) {
-				default_width=1920,
-				default_height=1080,
-				fullscreened = true,
-				decorated = false,
-				handle_menubar_accel = false,
-				mnemonics_visible = false,
-				show_menubar = false,
-				resizable = false,
-			};
-
-			window = win;
-
-			init_css ();
-
-			// event mousse key releass controller
-
-			var event_controller = new Gtk.EventControllerMotion ();
-
-			event_controller.motion.connect ((x, y) => {
-				inibhit_system_shortcuts ();
-			});
-
-			var event_controller_key = new Gtk.EventControllerKey ();
-
-			event_controller_key.key_pressed.connect ((keyval, keycode) => {
-				// Escape touch
-				if (keyval == Gdk.Key.Escape || keyval == Gdk.Key.Super_L) {
-					menu.swap();
-				}
-				inibhit_system_shortcuts ();
-				return true;
-			});
-
-			((Widget)win).add_controller (event_controller_key);
-			((Widget)win).add_controller (event_controller);
-
-
-			window.close_request.connect (()=> {
-				menu.open.begin();
-				return true;
-			});
-
-			my_puzzle.onFinish.connect (()=> {
-				win.close ();
-				win.dispose ();
-			});
-
-			win.child = overlay;
-			win.present ();
-		}
-		catch (Error e) {
-			printerr("Error: %s\n", e.message);
+			init_overlay ();
+		} catch (Error e) {
+			printerr (e.message);
 		}
 	}
 

@@ -1,6 +1,11 @@
 project('suprapuzzle', ['c', 'vala'], version : '1.0',
   default_options : ['warning_level=0', 'optimization=3', 'buildtype=release'],)
 
+
+############################################
+# Gresources and blueprints 
+############################################
+
 gnome = import('gnome')
 
 asresources = gnome.compile_resources(
@@ -9,7 +14,21 @@ asresources = gnome.compile_resources(
     c_name: 'as'
 )
 
+############################################
+# Configuration 
+############################################
+conf_data = configuration_data()
+conf_data.set('password', '12345')
+
+############################################
+# Create the executable (suprapuzzle)
+############################################
 subdir('src')
+
+
+
+
+# useless for now
 
 # Module LIBPORTAL for screen capture 
 # subproject ('libportal',

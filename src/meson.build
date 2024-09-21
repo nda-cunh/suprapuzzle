@@ -1,10 +1,16 @@
 
+
+config_vala = configure_file(input : 'config.vala.in',
+               output : 'config.vala',
+               configuration : conf_data)
+
 vala_src = [
   files('main.vala'),
   files('Puzzle.vala'),
   files('Tiles.vala'),
   files('Menu.vala'),
   files('TimerClock.vala'),
+  config_vala,
 ]
 
 vala_deps = [

@@ -119,8 +119,6 @@ class  Password : Box {
 		vexpand = true;
 	}
 
-	private const string password = "123";
-
 	public Password () {
 		label = new Label ("Password") {
 			css_classes = {"h3"}
@@ -128,12 +126,12 @@ class  Password : Box {
 		entry = new Entry () {
 			visibility = false,
 			activates_default = true,
-			max_length = password.length,
-			width_chars = password.length,
+			max_length = Config.PASSWORD.length,
+			width_chars = Config.PASSWORD.length,
 			input_purpose = InputPurpose.NUMBER
 		};
 		entry.changed.connect (()=> {
-			if (entry.text == password) {
+			if (entry.text == Config.PASSWORD) {
 				this.onGoodPassword();
 			}
 		});

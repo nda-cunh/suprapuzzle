@@ -1,5 +1,8 @@
 using Gtk;
 
+public double screen_width;
+public double screen_height;
+
 public class Puzzle : Gtk.Grid{
 
 	private Tiles []tab;
@@ -8,30 +11,38 @@ public class Puzzle : Gtk.Grid{
 		init_puzzle (7, 4);
 	}
 
+	double ratio_x;
+	double ratio_y;
+
 	private void init_puzzle (int row, int col) throws Error {
-	
+		init_screen_size ();
 		{
-			var bytes = resources_lookup_data (@"/data/img$(Random.int_range (1, 8)).png", ResourceLookupFlags.NONE);
+			var bytes = resources_lookup_data (@"/data/img$(Random.int_range (1, 7)).png", ResourceLookupFlags.NONE);
+			// var bytes = resources_lookup_data (@"/data/img7.png", ResourceLookupFlags.NONE);
 			FileUtils.open_tmp ("my_tmpXXXXXX.png", out img_puzzle);
 			print(img_puzzle);
 			FileUtils.set_data (img_puzzle, bytes.get_data ());
 		}
 		var img_surface = new Cairo.ImageSurface.from_png (img_puzzle);
 
-		int height = img_surface.get_height();
-		int width = img_surface.get_width();
+		int width_img = img_surface.get_width();
+		int height_img = img_surface.get_height();
 
-		int size_w = width / row;
-		int size_h = height / col;
+		int width_tile = width_img / row;
+		int height_tile = height_img / col;
 
+		int W = (int)screen_width / row;
+		int H = (int)screen_height / col;
 
+		ratio_x = screen_width / width_img;
+		ratio_y = screen_height / height_img;
 
 		tab = {};
 		var i = 0;
 		var j = 0;
 		var n = 0;
 		while (j != col) {
-			var ig = create_image_from_offset (img_surface, size_w * i, size_h * j, size_w, (size_h));
+			var ig = create_image_from_offset (img_surface, width_tile * i, height_tile * j, W, H);
 			var tiles = new Tiles(ig, n);
 			base.attach(tiles, i, j, 1, 1);
 			tab += tiles;
@@ -71,7 +82,7 @@ public class Puzzle : Gtk.Grid{
 			int r1 = Random.int_range (0, tab.length);
 			int r2 = Random.int_range (0, tab.length);
 			tab[r1].swap(tab[r2]);
-			Timeout.add(10, shuffle.callback);
+			Timeout.add(8, shuffle.callback);
 			yield;
 		}
 	}
@@ -80,6 +91,7 @@ public class Puzzle : Gtk.Grid{
 		var surface = new Cairo.ImageSurface(img_surface.get_format (), w, h);
 
 		Cairo.Context ctx = new Cairo.Context(surface);
+		ctx.scale (ratio_x, ratio_y);
 		ctx.set_source_surface (img_surface, -x, -y);
 		ctx.paint();
 
@@ -90,3 +102,11 @@ public class Puzzle : Gtk.Grid{
 	} 
 
 } 
+
+public void init_screen_size () {
+	var display = Gdk.Display.get_default();
+	var monitor = (Gdk.Monitor)display.get_monitors ().get_item (0);
+	var rect = monitor.get_geometry ();
+	screen_width = (double)rect.width;
+	screen_height = (double)rect.height;
+}

@@ -3,11 +3,6 @@ using Gtk;
 private unowned Gtk.ApplicationWindow window; // main window
 public string? img_puzzle = null; // image path
 
-int main (string[] args) {
-	var app = new SupraApplication ();
-	return app.run (args);
-}
-
 public class SupraApplication : Gtk.Application {
 	construct {
 		application_id = "com.SupraPuzzle.App";
@@ -30,7 +25,7 @@ public class SupraApplication : Gtk.Application {
 		// Create the Window fullscreen
 		var overlay = new Gtk.Overlay();
 
-		var my_puzzle = new Puzzle ();
+		var my_puzzle = new Puzzle (id_gresource, img_path);
 		var menu = new Menu ();
 
 		menu.onFinish.connect (()=> {
@@ -79,16 +74,17 @@ public class SupraApplication : Gtk.Application {
 		((Widget)win).add_controller (event_controller);
 
 
-		window.close_request.connect (()=> {
+		window.close_request.connect (() => {
 			menu.open.begin();
-			return true;
+			return false;
 		});
 
-		my_puzzle.onFinish.connect (()=> {
+		my_puzzle.onFinish.connect (() => {
 			win.close ();
 			win.dispose ();
 		});
 
+		// Gdk.X11.Surface.lookup_for_display (Gdk.Display.get_default (), win.get_native ().get_surface ());
 		win.child = overlay;
 		win.present ();
 	}
@@ -104,6 +100,39 @@ public class SupraApplication : Gtk.Application {
 		}
 	}
 
+	private static bool version;
+	private static string? img_path;
+	private static int id_gresource;
+
+	private const GLib.OptionEntry[] options = {
+		{ "version", 'v', OptionFlags.NONE, OptionArg.NONE, ref version, "Display version number", null },
+		{ "img", '\0', OptionFlags.NONE, OptionArg.STRING, ref img_path, "path of the image", "path" },
+		{ "id", '\0', OptionFlags.NONE, OptionArg.INT, ref id_gresource, "id of gresource image (random by default)", "id" },
+		{ null }
+	};
+
+	public static int main (string[] args) {
+		try {
+			var opt_context = new OptionContext ("- SupraPuzzle help");
+			opt_context.set_help_enabled (true);
+			opt_context.add_main_entries (options, null);
+			opt_context.parse (ref args);
+
+			if (version)
+			{
+				print ("SupraPuzzle\n");
+				print ("Version %s\n", Config.VERSION);
+				return 0;
+			}
+		}
+		catch (Error e) {
+			printerr (e.message);
+			return 1;
+		}
+
+		var app = new SupraApplication ();
+		return app.run (args);
+	}
 }
 
 public void inibhit_system_shortcuts () {

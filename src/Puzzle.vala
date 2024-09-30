@@ -7,23 +7,46 @@ public class Puzzle : Gtk.Grid{
 
 	private Tiles []tab;
 
-	public Puzzle () throws Error {
-		init_puzzle (7, 4);
+	public Puzzle (int id, string? img_path) throws Error {
+		init_puzzle (7, 4, img_path, id);
 	}
 
 	double ratio_x;
 	double ratio_y;
 
-	private void init_puzzle (int row, int col) throws Error {
-		init_screen_size ();
-		{
-			var bytes = resources_lookup_data (@"/data/img$(Random.int_range (1, 7)).png", ResourceLookupFlags.NONE);
-			// var bytes = resources_lookup_data (@"/data/img7.png", ResourceLookupFlags.NONE);
-			FileUtils.open_tmp ("my_tmpXXXXXX.png", out img_puzzle);
-			print(img_puzzle);
-			FileUtils.set_data (img_puzzle, bytes.get_data ());
+
+	// count resource in /data
+	int count_resource () throws Error {
+		var strv = resources_enumerate_children ("/data", GLib.ResourceLookupFlags.NONE);
+		var count = 0;
+		foreach (unowned var i in strv) {
+			if (i.has_prefix ("img") && i.has_suffix (".png")) {
+				++count;
+			}
 		}
-		var img_surface = new Cairo.ImageSurface.from_png (img_puzzle);
+		return count;
+	}
+
+	private void init_puzzle (int row, int col, string? img_path, int id) throws Error {
+		init_screen_size ();
+		Cairo.ImageSurface img_surface;
+		{
+			FileUtils.open_tmp ("my_tmpXXXXXX.png", out img_puzzle);
+			if (id != 0) {
+				var bytes = resources_lookup_data (@"/data/img$id.png", ResourceLookupFlags.NONE);
+				FileUtils.set_data (img_puzzle, bytes.get_data ());
+				img_surface = new Cairo.ImageSurface.from_png (img_puzzle);
+			}
+			else if (img_path != null) {
+				img_surface = new Cairo.ImageSurface.from_png (img_path);
+			}
+			else {
+				int count = count_resource ();
+				var bytes = resources_lookup_data (@"/data/img$(Random.int_range (1, count + 1)).png", ResourceLookupFlags.NONE);
+				FileUtils.set_data (img_puzzle, bytes.get_data ());
+				img_surface = new Cairo.ImageSurface.from_png (img_puzzle);
+			}
+		}
 
 		int width_img = img_surface.get_width();
 		int height_img = img_surface.get_height();

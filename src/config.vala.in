@@ -1,3 +1,4 @@
 namespace Config {
 	public const string PASSWORD = "@password@";
+	public const string VERSION = "@version@";
 }

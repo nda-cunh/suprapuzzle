@@ -19,10 +19,12 @@ asresources = gnome.compile_resources(
 ############################################
 conf_data = configuration_data()
 conf_data.set('password', get_option('password'))
+conf_data.set('version', meson.project_version())
 
 ############################################
 # Create the executable (suprapuzzle)
 ############################################
+
 subdir('src')
 
 

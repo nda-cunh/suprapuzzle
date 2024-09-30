@@ -20,7 +20,7 @@ public class Puzzle : Gtk.Grid{
 		var strv = resources_enumerate_children ("/data", GLib.ResourceLookupFlags.NONE);
 		var count = 0;
 		foreach (unowned var i in strv) {
-			if (i.has_prefix ("img") && i.has_suffix (".png")) {
+			if (i.has_prefix ("img") && i.has_suffix (".jpg")) {
 				++count;
 			}
 		}
@@ -29,43 +29,38 @@ public class Puzzle : Gtk.Grid{
 
 	private void init_puzzle (int row, int col, string? img_path, int id) throws Error {
 		init_screen_size ();
-		Cairo.ImageSurface img_surface;
+		// Cairo.ImageSurface img_surface;
+		Gdk.Pixbuf pixbuf;
 		{
-			FileUtils.open_tmp ("my_tmpXXXXXX.png", out img_puzzle);
-			if (id != 0) {
-				var bytes = resources_lookup_data (@"/data/img$id.png", ResourceLookupFlags.NONE);
-				FileUtils.set_data (img_puzzle, bytes.get_data ());
-				img_surface = new Cairo.ImageSurface.from_png (img_puzzle);
-			}
-			else if (img_path != null) {
-				img_surface = new Cairo.ImageSurface.from_png (img_path);
-			}
+			if (id != 0)
+				pixbuf = new Gdk.Pixbuf.from_resource (@"/data/img$id.jpg");
+			else if (img_path != null)
+				pixbuf = new Gdk.Pixbuf.from_file (img_path); 
 			else {
 				int count = count_resource ();
-				var bytes = resources_lookup_data (@"/data/img$(Random.int_range (1, count + 1)).png", ResourceLookupFlags.NONE);
-				FileUtils.set_data (img_puzzle, bytes.get_data ());
-				img_surface = new Cairo.ImageSurface.from_png (img_puzzle);
+				pixbuf = new Gdk.Pixbuf.from_resource (@"/data/img$(Random.int_range(1, count + 1)).jpg");
 			}
 		}
 
-		int width_img = img_surface.get_width();
-		int height_img = img_surface.get_height();
 
-		int width_tile = width_img / row;
-		int height_tile = height_img / col;
+		int width	= pixbuf.get_width ();
+		int height	= pixbuf.get_height ();
+
+		int width_tile = width / row;
+		int height_tile = height / col;
 
 		int W = (int)screen_width / row;
 		int H = (int)screen_height / col;
 
-		ratio_x = screen_width / width_img;
-		ratio_y = screen_height / height_img;
+		ratio_x = screen_width / width;
+		ratio_y = screen_height / height;
 
 		tab = {};
 		var i = 0;
 		var j = 0;
 		var n = 0;
 		while (j != col) {
-			var ig = create_image_from_offset (img_surface, width_tile * i, height_tile * j, W, H);
+			var ig = create_image_from_offset (pixbuf, width_tile * i, height_tile * j, W, H);
 			var tiles = new Tiles(ig, n);
 			base.attach(tiles, i, j, 1, 1);
 			tab += tiles;
@@ -73,7 +68,7 @@ public class Puzzle : Gtk.Grid{
 			++n;
 			if (i == row) {
 				i = 0;
-				j++;
+				++j;
 			}
 		}
 		foreach (var e in tab) {
@@ -110,18 +105,18 @@ public class Puzzle : Gtk.Grid{
 		}
 	}
 
-	private Image create_image_from_offset (Cairo.ImageSurface img_surface, int x, int y, int w, int h) {
-		var surface = new Cairo.ImageSurface(img_surface.get_format (), w, h);
+	private Image create_image_from_offset (Gdk.Pixbuf pixbuf, int x, int y, int w, int h) {
+		var surface = new Cairo.ImageSurface(Cairo.Format.ARGB32, w, h);
 
 		Cairo.Context ctx = new Cairo.Context(surface);
 		ctx.scale (ratio_x, ratio_y);
-		ctx.set_source_surface (img_surface, -x, -y);
+		Gdk.cairo_set_source_pixbuf (ctx, pixbuf, -x, -y);
 		ctx.paint();
 
 		int size = surface.get_stride() * surface.get_height();
-		var m =  new Gdk.MemoryTexture (w, h, Gdk.MemoryFormat.B8G8R8A8, new Bytes(surface.get_data ()[0:size]), surface.get_stride ());
-		var image = new Image.from_paintable (m);
-		return image;
+
+		var texture =  new Gdk.MemoryTexture (w, h, Gdk.MemoryFormat.B8G8R8A8, new Bytes(surface.get_data ()[0:size]), surface.get_stride ());
+		return (new Image.from_paintable (texture));
 	} 
 
 } 

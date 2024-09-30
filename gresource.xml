@@ -2,11 +2,11 @@
 <gresources>
 	<gresource prefix="/data/">
     <file compressed="true">style.css</file>
-    <file compressed="true">img1.png</file>
-    <file compressed="true">img2.png</file>
-    <file compressed="true">img3.png</file>
-    <file compressed="true">img4.png</file>
-    <file compressed="true">img5.png</file>
-    <file compressed="true">img6.png</file>
+    <file compressed="true">img1.jpg</file>
+    <file compressed="true">img2.jpg</file>
+    <file compressed="true">img3.jpg</file>
+    <file compressed="true">img4.jpg</file>
+    <file compressed="true">img5.jpg</file>
+    <file compressed="true">img6.jpg</file>
   </gresource>
 </gresources>

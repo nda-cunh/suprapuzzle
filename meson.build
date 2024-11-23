@@ -1,5 +1,10 @@
-project('suprapuzzle', ['c', 'vala'], version : '1.2',
-  default_options : ['warning_level=0', 'optimization=3', 'buildtype=release'],)
+project('suprapuzzle', ['c', 'vala'], version : '1.3',
+  default_options : ['warning_level=0', 'optimization=3', 'buildtype=release'],
+  meson_version: '>= 1.5.0')
+
+# meson version 1.5.0
+
+
 
 
 ############################################
@@ -18,7 +23,29 @@ asresources = gnome.compile_resources(
 # Configuration 
 ############################################
 conf_data = configuration_data()
-conf_data.set('password', get_option('password'))
+
+password = get_option('password')
+compiler = meson.get_compiler ('c')
+result = compiler.run('''
+#include <stdlib.h>
+#include <glib.h>
+
+int main ()
+{
+	char * res = g_compute_checksum_for_string (G_CHECKSUM_SHA512, "''' + password + '''", -1);
+	g_print ("%s", res);
+	free (res);
+	return 0;
+}
+''',
+  dependencies: [dependency('glib-2.0')],
+  name: 'hash',
+  required: true,
+)
+password = result.stdout()
+
+
+conf_data.set('password', password)
 conf_data.set('version', meson.project_version())
 
 ############################################

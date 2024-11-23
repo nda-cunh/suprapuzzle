@@ -127,11 +127,11 @@ class  Password : Box {
 			visibility = false,
 			activates_default = true,
 			max_length = Config.PASSWORD.length,
-			width_chars = Config.PASSWORD.length,
+			width_chars = 32,
 			input_purpose = InputPurpose.NUMBER
 		};
 		entry.changed.connect (()=> {
-			if (entry.text == Config.PASSWORD) {
+			if (Checksum.compute_for_string (ChecksumType.SHA512, entry.text) == Config.PASSWORD) {
 				this.onGoodPassword();
 			}
 		});

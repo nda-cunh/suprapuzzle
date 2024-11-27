@@ -16,15 +16,15 @@ public class Puzzle : Gtk.Grid{
 
 
 	// count resource in /data
-	int count_resource () throws Error {
+	string []count_resource () throws Error {
 		var strv = resources_enumerate_children ("/data", GLib.ResourceLookupFlags.NONE);
-		var count = 0;
+		string []tabb_jpeg = {};
 		foreach (unowned var i in strv) {
-			if (i.has_prefix ("img") && i.has_suffix (".jpg")) {
-				++count;
+			if (i.has_suffix (".jpg")) {
+				tabb_jpeg += i;
 			}
 		}
-		return count;
+		return tabb_jpeg;
 	}
 
 	private void init_puzzle (int row, int col, string? img_path, int id) throws Error {
@@ -37,8 +37,9 @@ public class Puzzle : Gtk.Grid{
 			else if (img_path != null)
 				pixbuf = new Gdk.Pixbuf.from_file (img_path); 
 			else {
-				int count = count_resource ();
-				pixbuf = new Gdk.Pixbuf.from_resource (@"/data/img$(Random.int_range(1, count + 1)).jpg");
+				var img_randomize = count_resource ();
+				var nb_random = Random.int_range (0, img_randomize.length);
+				pixbuf = new Gdk.Pixbuf.from_resource ("/data/" + img_randomize[nb_random]);
 			}
 		}
 

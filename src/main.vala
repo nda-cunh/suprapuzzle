@@ -107,7 +107,7 @@ public class SupraApplication : Gtk.Application {
 #if IS_BLOCKED
 		Widget win_widget = window as Widget;
 		win_widget.realize.connect (() => {
-			unowned var display = Gdk.Display.get_default () as Gdk.X11.Display; 
+			unowned var display = Gdk.Display.get_default () as Gdk.X11.Display;
 			unowned var x11_d = display.get_xdisplay ();
 
 			var native = ((Widget)window).get_native ();
@@ -128,7 +128,7 @@ public class SupraApplication : Gtk.Application {
 				var p_data = display.get_xatom_by_name ("_NET_WM_WINDOW_TYPE_POPUP_MENU");
 				var data = (uchar[])&p_data;
 				// Set the window type to menu
-				x11_d.change_property (x11_w, property, X.XA_ATOM, 32, X.PropMode.Replace, data, 1); 
+				x11_d.change_property (x11_w, property, X.XA_ATOM, 32, X.PropMode.Replace, data, 1);
 				return false;
 			});
 		});

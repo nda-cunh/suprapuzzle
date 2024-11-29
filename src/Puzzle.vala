@@ -9,6 +9,9 @@ public class Puzzle : Gtk.Grid{
 
 	public Puzzle (int id, string? img_path) throws Error {
 		init_puzzle (7, 4, img_path, id);
+		this.onFinish.connect (() => {
+			is_finish = true;
+		});
 	}
 
 	double ratio_x;
@@ -93,6 +96,7 @@ public class Puzzle : Gtk.Grid{
 		onFinish ();
 	}
 
+	public bool is_finish = false;
 	public signal void onFinish ();
 
 	private async void shuffle () {

@@ -1,23 +1,23 @@
 /**
  *
  * TimerClock component
- * 
+ *
  * a simple widget that shows a timer clock begining by 30 minutes
  */
 public class TimerClock : Object {
 
-	// 30 minutes (1800 seconds)
-	const double time_max = 1800;
+	// 45 minutes (2700 seconds)
+	const double time_max = 2700;
 
 	public TimerClock () {
-		label = new Gtk.Label ("30:00") {
+		label = new Gtk.Label ("45:00") {
 			css_classes = {"h1"}
 		};
 		timer = new GLib.Timer ();
 		timer.stop();
 	}
 
-	/** 
+	/**
 	 * Update the label every second
 	 */
 	public async void update () {
@@ -49,14 +49,13 @@ public class TimerClock : Object {
 		timer.start ();
 		update.begin ();
 	}
-	
+
 	/**
 	 * Signal
 	 */
-	public signal void onEnd (); 
+	public signal void onEnd ();
 
 	public Gtk.Label label;
 	private GLib.Timer timer;
 	private bool is_starting = false;
 }
-

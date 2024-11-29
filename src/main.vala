@@ -73,8 +73,9 @@ public class SupraApplication : Gtk.Application {
 				if (my_puzzle.is_finish == false)
 					is_punish = true;
 				return true;
+			#else
+				return false;
 			#endif
-			return false;
 		});
 
 		my_puzzle.onFinish.connect (() => {

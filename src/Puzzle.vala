@@ -35,8 +35,12 @@ public class Puzzle : Gtk.Grid{
 		// Cairo.ImageSurface img_surface;
 		Gdk.Pixbuf pixbuf;
 		{
-			if (id != 0)
-				pixbuf = new Gdk.Pixbuf.from_resource (@"/data/img$id.jpg");
+			if (id != 0) {
+				var img_randomize = count_resource ();
+				if (id > img_randomize.length || id < 0)
+					throw new FileError.ACCES(@"id: ($id) not found");
+				pixbuf = new Gdk.Pixbuf.from_resource (@"/data/" + img_randomize[id - 1]);
+			} 
 			else if (img_path != null)
 				pixbuf = new Gdk.Pixbuf.from_file (img_path); 
 			else {

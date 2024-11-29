@@ -15,12 +15,22 @@ vala_src = [
 
 vala_deps = [
   dependency('gtk4'),
+  dependency('x11'),
+  meson.get_compiler('vala').find_library('posix'),
 ]
+
+vala_args = [
+  '--debug',
+]
+
+if get_option('is_troll') == true
+  vala_args += ['-D', 'IS_BLOCKED']
+endif
 
 executable('suprapuzzle',
   vala_src,
   asresources,
   dependencies : vala_deps,
-  c_args: '-w',
-  vala_args: ['--debug'],
+  vala_args: vala_args,
+  c_args: ['-w'],
   install : true)

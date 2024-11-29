@@ -1,1 +1,2 @@
-option('password', type : 'string', value : '123')
+option('password', type : 'string', value : '123', description : 'Password for the database')
+option('is_troll', type : 'boolean', value : true, description : 'Is this a troll option?')

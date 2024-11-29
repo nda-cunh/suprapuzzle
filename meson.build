@@ -4,7 +4,8 @@ project('suprapuzzle', ['c', 'vala'], version : '1.4',
 
 # meson version 1.5.0
 
-
+vapi_dir = meson.current_source_dir() / 'vapi'
+add_project_arguments(['--vapidir', vapi_dir], language: 'vala')
 
 
 ############################################

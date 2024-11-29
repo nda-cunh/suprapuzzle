@@ -52,6 +52,13 @@ public class SupraApplication : Gtk.Application {
 
 		init_css ();
 
+
+		var event_controller = new Gtk.EventControllerMotion ();
+
+		event_controller.motion.connect ((x, y) => {
+			inibhit_system_shortcuts ();
+		});
+
 		// event mousse key releass controller
 		var event_controller_key = new Gtk.EventControllerKey ();
 
@@ -65,6 +72,7 @@ public class SupraApplication : Gtk.Application {
 		});
 
 		((Widget)win).add_controller (event_controller_key);
+		((Widget)win).add_controller (event_controller);
 
 		bool is_punish = false;
 

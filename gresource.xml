@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
 	<gresource prefix="/data/">
-    <file compressed="true">style.css</file>
-	<file compressed="true">eminem.jpg</file>
-	<file compressed="true">godzilla.jpg</file>
 	<file compressed="true">img2.jpg</file>
 	<file compressed="true">img3.jpg</file>
 	<file compressed="true">img4.jpg</file>
 	<file compressed="true">img5.jpg</file>
 	<file compressed="true">img6.jpg</file>
 	<file compressed="true">mule.jpg</file>
-	<file compressed="true">sounic.jpg</file>
-	<file compressed="true">stack.jpg</file>
-	<file compressed="true">sylvain.jpg</file>
-	<file compressed="true">zapzap.jpg</file>
+	<file compressed="true">style.css</file>
   </gresource>
 </gresources>

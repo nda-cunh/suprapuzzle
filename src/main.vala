@@ -1,6 +1,6 @@
 using Gtk;
 
-private unowned Gtk.ApplicationWindow window; // main window
+private Gtk.ApplicationWindow win; // main window
 public string? img_puzzle = null; // image path
 
 public class SupraApplication : Gtk.Application {
@@ -17,42 +17,25 @@ public class SupraApplication : Gtk.Application {
 		Gtk.StyleContext.add_provider_for_display (Gdk.Display.get_default (), provider, 0);
 	}
 
-	/**
-	** Init the overlay
-	**/
-	public void init_overlay () throws Error {
 
+	public void init_after_realize () {
 		// Create the Window fullscreen
 		var overlay = new Gtk.Overlay();
 
 		var my_puzzle = new Puzzle (id_gresource, img_path);
+		unowned var display = Gdk.Display.get_default ();
+		var monitor = display.get_monitor_at_surface (win.get_surface ());
+		var geometry = monitor.get_geometry ();
+		my_puzzle.init_puzzle (geometry.width, geometry.height);
+
 		var menu = new Menu ();
 
 		menu.onFinish.connect (()=> {
 			base.quit ();
 		});
 
-
 		overlay.add_overlay (my_puzzle);
 		overlay.add_overlay (menu);
-
-		var win = new Gtk.ApplicationWindow (this) {
-			default_width=1920,
-			default_height=1080,
-			fullscreened = true,
-			decorated = false,
-			handle_menubar_accel = false,
-			mnemonics_visible = false,
-			show_menubar = false,
-			resizable = false,
-		};
-
-
-		window = win;
-
-		init_css ();
-
-
 		var event_controller = new Gtk.EventControllerMotion ();
 
 		event_controller.motion.connect ((x, y) => {
@@ -75,16 +58,6 @@ public class SupraApplication : Gtk.Application {
 		((Widget)win).add_controller (event_controller);
 
 		bool is_punish = false;
-
-		window.close_request.connect (() => {
-			#if IS_BLOCKED
-				if (my_puzzle.is_finish == false)
-					is_punish = true;
-				return true;
-			#else
-				return false;
-			#endif
-		});
 
 		my_puzzle.onFinish.connect (() => {
 			if (is_punish == true) {
@@ -110,15 +83,36 @@ public class SupraApplication : Gtk.Application {
 		});
 
 		win.child = overlay;
+	}
+	/**
+	** Init the overlay
+	**/
+	public void init_overlay () throws Error {
+
+		win = new Gtk.ApplicationWindow (this) {
+			default_width=1920,
+			default_height=1080,
+			fullscreened = true,
+			decorated = false,
+			handle_menubar_accel = false,
+			mnemonics_visible = false,
+			show_menubar = false,
+			resizable = false,
+		};
+		((Widget)win).realize.connect (init_after_realize);
+
+
+		init_css ();
+
 
 
 #if IS_BLOCKED
-		Widget win_widget = window as Widget;
+		Widget win_widget = win as Widget;
 		win_widget.realize.connect (() => {
 			unowned var display = Gdk.Display.get_default () as Gdk.X11.Display;
 			unowned var x11_d = display.get_xdisplay ();
 
-			var native = ((Widget)window).get_native ();
+			var native = ((Widget)win).get_native ();
 			var surface = native.get_surface () as Gdk.X11.Surface;
 
 			// wait for the window to be realized
@@ -193,7 +187,7 @@ public class SupraApplication : Gtk.Application {
 
 public void inibhit_system_shortcuts () {
 #if IS_BLOCKED
-	unowned var native = ((Widget)window).get_native ();
+	unowned var native = ((Widget)win).get_native ();
 	unowned var surface = native.get_surface ();
 	if (surface is Gdk.Toplevel) {
 		surface.inhibit_system_shortcuts (null);

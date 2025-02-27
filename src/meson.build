@@ -7,7 +7,7 @@ config_vala = configure_file(input : 'config.vala.in',
 vala_src = [
   files('main.vala'),
   files('Puzzle.vala'),
-  files('Tiles.vala'),
+  files('Tile.vala'),
   files('Menu.vala'),
   files('TimerClock.vala'),
   config_vala,

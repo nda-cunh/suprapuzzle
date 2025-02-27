@@ -1,48 +1,45 @@
 using Gtk;
+using Cairo;
 
-public double screen_width;
-public double screen_height;
+string []count_resource () throws Error {
+	var strv = resources_enumerate_children ("/data", GLib.ResourceLookupFlags.NONE);
+	string []tabb_jpeg = {};
+	foreach (unowned var i in strv) {
+		if (i.has_suffix (".jpg")) {
+			tabb_jpeg += i;
+		}
+	}
+	return tabb_jpeg;
+}
 
-public class Puzzle : Gtk.Grid{
+public class Puzzle : Gtk.DrawingArea {
+	private int cols = 7;
+	private int rows = 4;
+	Gdk.Pixbuf pixbuf; 
+	Tile[] tab2;
+	Gtk.EventControllerMotion motion_controller = new Gtk.EventControllerMotion ();
+	Gtk.GestureClick click_gesture = new Gtk.GestureClick ();
+	unowned Tile? selected_tile = null;
+	double grab_x = 0;
+	double grab_y = 0;
 
-	private Tiles []tab;
 
 	public Puzzle (int id, string? img_path) throws Error {
-		init_puzzle (7, 4, img_path, id);
-		this.onFinish.connect (() => {
-			is_finish = true;
-		});
-	}
-
-	double ratio_x;
-	double ratio_y;
 
 
-	// count resource in /data
-	string []count_resource () throws Error {
-		var strv = resources_enumerate_children ("/data", GLib.ResourceLookupFlags.NONE);
-		string []tabb_jpeg = {};
-		foreach (unowned var i in strv) {
-			if (i.has_suffix (".jpg")) {
-				tabb_jpeg += i;
-			}
-		}
-		return tabb_jpeg;
-	}
+		set_draw_func (draw_func);
+		// pixbuf = new Gdk.Pixbuf.from_resource (img_path);
 
-	private void init_puzzle (int row, int col, string? img_path, int id) throws Error {
-		init_screen_size ();
-		// Cairo.ImageSurface img_surface;
-		Gdk.Pixbuf pixbuf;
+
 		{
 			if (id != 0) {
 				var img_randomize = count_resource ();
 				if (id > img_randomize.length || id < 0)
 					throw new FileError.ACCES(@"id: ($id) not found");
 				pixbuf = new Gdk.Pixbuf.from_resource (@"/data/" + img_randomize[id - 1]);
-			} 
+			}
 			else if (img_path != null)
-				pixbuf = new Gdk.Pixbuf.from_file (img_path); 
+				pixbuf = new Gdk.Pixbuf.from_file (img_path);
 			else {
 				var img_randomize = count_resource ();
 				var nb_random = Random.int_range (0, img_randomize.length);
@@ -50,90 +47,137 @@ public class Puzzle : Gtk.Grid{
 			}
 		}
 
-
-		int width	= pixbuf.get_width ();
-		int height	= pixbuf.get_height ();
-
-		int width_tile = width / row;
-		int height_tile = height / col;
-
-		int W = (int)screen_width / row;
-		int H = (int)screen_height / col;
-
-		ratio_x = screen_width / width;
-		ratio_y = screen_height / height;
-
-		tab = {};
-		var i = 0;
-		var j = 0;
-		var n = 0;
-		while (j != col) {
-			var ig = create_image_from_offset (pixbuf, width_tile * i, height_tile * j, W, H);
-			var tiles = new Tiles(ig, n);
-			base.attach(tiles, i, j, 1, 1);
-			tab += tiles;
-			++i;
-			++n;
-			if (i == row) {
-				i = 0;
-				++j;
-			}
-		}
-		foreach (var e in tab) {
-			e.onMove.connect(test);
-		}
-
-		shuffle.begin ();
-
+		add_controller (motion_controller);
+		add_controller (click_gesture);
+		motion_controller.motion.connect (onMove);
+		click_gesture.pressed.connect (pressed);
+		click_gesture.released.connect (released);
 	}
 
-	// test if the puzzle is finish (all tiles )
-	public void test () {
-		int tmp_max = 0;
-		foreach (var t in tab) {
-			if (tmp_max == t.id) {
-				++tmp_max;
+
+	private double grab_padding_x = 0.0;
+	private double grab_padding_y = 0.0;
+
+	public void pressed (int button, double x, double y) {
+		if (is_shuffling)
+			return;
+		foreach (unowned var tile in tab2) {
+			if (tile.collisio_with_point (x, y)) {
+				selected_tile = tile;
+				tile.visible = false;
+				grab_padding_x = x - selected_tile.x;
+				grab_padding_y = y - selected_tile.y;
+				grab_x = selected_tile.x;
+				grab_y = selected_tile.y;
+				queue_draw ();
 			}
-			else
-				return ;
 		}
-		onFinish ();
+	}
+	
+	public void onMove (double x, double y) {
+		if (selected_tile != null) {
+			grab_x = x - grab_padding_x;
+			grab_y = y - grab_padding_y;
+		}
+		queue_draw ();
 	}
 
-	public bool is_finish = false;
+	public void released (int button, double x, double y) {
+		// print ("Mouse released at: [%d] %g, %g\n", button, x, y);
+		if (selected_tile != null) {
+			selected_tile.visible = true;
+			foreach (unowned var tile in tab2) {
+				if (tile.collisio_with_point (x, y)) {
+					tile.swap(selected_tile);
+				}
+			}
+			queue_draw ();
+			selected_tile = null;
+			foreach (unowned var tile in tab2) {
+				if (!tile.is_sort ()) {
+					return;
+				}
+			}
+			onFinish();
+		}
+	}
+
 	public signal void onFinish ();
 
-	private async void shuffle () {
-		for (int i = 0; i < 150; ++i)
-		{
-			int r1 = Random.int_range (0, tab.length);
-			int r2 = Random.int_range (0, tab.length);
-			tab[r1].swap(tab[r2]);
-			Timeout.add(8, shuffle.callback);
-			yield;
+
+	public void init_puzzle (int width, int height) {
+		// Obtenir les dimensions de chaque sous-image
+		int padding_center_x = 0;
+		int padding_center_y = 0;
+		int piece_width = width / cols;
+		int piece_height = height / rows;
+
+		// les pieces doivent etre carrées donc on prend la plus petite dimension
+		int piece_size = int.min(piece_width, piece_height);
+		// calculer le padding pour centrer les pieces
+		if (piece_width < piece_height) {
+			padding_center_y = ((piece_height * rows) - (piece_size * rows)) / 2;
 		}
+		if (piece_height < piece_width) {
+			padding_center_x = ((piece_width * cols) - (piece_size * cols)) / 2;
+		}
+
+		// Redimensionner l'image pour qu'elle s'adapte à la taille de la fenêtre
+		Gdk.Pixbuf scaled_pixbuf = pixbuf.scale_simple (piece_size * cols, piece_size * rows, Gdk.InterpType.BILINEAR);
+
+		tab2 = new Tile[cols * rows];
+		
+		for (int i = 0; i < tab2.length; ++i)
+		{
+			tab2[i] = new Tile (piece_size);
+		}
+
+		// Dessiner chaque sous-image
+		for (int row = 0; row < rows; ++row) {
+			for (int col = 0; col < cols; ++col) {
+				// Dessiner chaque sous-image
+				{
+					int x = col * piece_size;
+					int y = row * piece_size;
+					tab2[row * cols + col].paint (scaled_pixbuf, x, y);
+				}
+				// Positionner chaque sous-image
+				{
+					int p_x = padding_center_x + col * piece_size;
+					int p_y = padding_center_y + row * piece_size;
+					tab2[row * cols + col].init_point (p_x, p_y);
+				}
+			}
+		}
+		shuffle.begin ();
 	}
 
-	private Image create_image_from_offset (Gdk.Pixbuf pixbuf, int x, int y, int w, int h) {
-		var surface = new Cairo.ImageSurface(Cairo.Format.ARGB32, w, h);
+	private bool is_shuffling = false;
 
-		Cairo.Context ctx = new Cairo.Context(surface);
-		ctx.scale (ratio_x, ratio_y);
-		Gdk.cairo_set_source_pixbuf (ctx, pixbuf, -x, -y);
-		ctx.paint();
+	private async void shuffle () {
+		is_shuffling = true;
+		for (int i = 0; i < 150; ++i)
+		{
+			int r1 = Random.int_range (0, tab2.length);
+			int r2 = Random.int_range (0, tab2.length);
+			tab2[r1].swap(tab2[r2]);
+			Timeout.add(8, shuffle.callback);
+			queue_draw ();
+			yield;
+		}
+		is_shuffling = false;
+	}
 
-		int size = surface.get_stride() * surface.get_height();
+	public void draw_func (DrawingArea drawing_area, Context cr, int width, int height) {
+		foreach (unowned var tile in tab2) {
+			tile.draw (cr);
+		}
 
-		var texture =  new Gdk.MemoryTexture (w, h, Gdk.MemoryFormat.B8G8R8A8, new Bytes(surface.get_data ()[0:size]), surface.get_stride ());
-		return (new Image.from_paintable (texture));
-	} 
-
-} 
-
-public void init_screen_size () {
-	var display = Gdk.Display.get_default();
-	var monitor = (Gdk.Monitor)display.get_monitors ().get_item (0);
-	var rect = monitor.get_geometry ();
-	screen_width = (double)rect.width;
-	screen_height = (double)rect.height;
+		if (selected_tile != null) {
+			cr.set_source_surface (selected_tile.surface, grab_x, grab_y);
+			cr.paint ();
+		}
+	}
 }
+
+

@@ -18,7 +18,7 @@ public class SupraApplication : Gtk.Application {
 	}
 
 
-	public void init_after_realize () {
+	public void init_after_realize () throws Error {
 		// Create the Window fullscreen
 		var overlay = new Gtk.Overlay();
 
@@ -99,7 +99,16 @@ public class SupraApplication : Gtk.Application {
 			show_menubar = false,
 			resizable = false,
 		};
-		((Widget)win).realize.connect (init_after_realize);
+
+		((Widget)win).realize.connect (() => {
+			try {
+				init_after_realize ();
+			}
+			catch (Error e) {
+				printerr (e.message);
+				base.quit();
+			}
+		});
 
 
 		init_css ();

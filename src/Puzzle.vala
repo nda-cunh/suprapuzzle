@@ -86,6 +86,11 @@ public class Puzzle : Gtk.DrawingArea {
 			grab_x = x - grab_padding_x;
 			grab_y = y - grab_padding_y;
 		}
+		else {
+			foreach (unowned var tile in tab2) {
+				tile.hover = tile.collisio_with_point (x, y);
+			}
+		}
 		queue_draw ();
 	}
 

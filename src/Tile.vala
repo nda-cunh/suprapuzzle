@@ -5,6 +5,7 @@ public class Tile {
 	public Cairo.Surface surface {get;private set;}
 	public int size {get;private set;}
 	public bool visible = true;
+	public bool hover = false;
 
 	public Tile (int size) {
 		this.size = size;
@@ -39,6 +40,11 @@ public class Tile {
 		const double margin = 2;
 		cr.set_source_surface (this.surface, x, y);
 		cr.paint ();
+		if (hover) {
+			cr.rectangle (x, y, size, size);
+			cr.set_source_rgba (0, 0, 0, 0.2);
+			cr.fill ();
+		}
 		if (border == false)
 			return;
 		cr.rectangle (x, y, size, size);

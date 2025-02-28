@@ -23,7 +23,9 @@ public class Puzzle : Gtk.DrawingArea {
 	double grab_x = 0;
 	double grab_y = 0;
 
-	public Puzzle (int id, string? img_path) throws Error {
+	public Puzzle (int id, string? img_path, int nb_x, int nb_y) throws Error {
+		cols = nb_x;
+		rows = nb_y;
 
 
 		set_draw_func (draw_func);

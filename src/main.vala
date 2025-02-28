@@ -35,7 +35,7 @@ public class SupraApplication : Gtk.Application {
 		// Create the Window fullscreen
 		var overlay = new Gtk.Overlay();
 
-		var my_puzzle = new Puzzle (id_gresource, img_path);
+		var my_puzzle = new Puzzle (id_gresource, img_path, nb_x, nb_y);
 		unowned var display = Gdk.Display.get_default ();
 		var monitor = display.get_monitor_at_surface (win.get_surface ());
 		var geometry = monitor.get_geometry ();
@@ -166,11 +166,16 @@ public class SupraApplication : Gtk.Application {
 	private static bool version;
 	private static string? img_path;
 	private static int id_gresource;
+	private static int nb_x = 7;
+	private static int nb_y = 4;
 
 	private const GLib.OptionEntry[] options = {
 		{ "version", 'v', OptionFlags.NONE, OptionArg.NONE, ref version, "Display version number", null },
 		{ "img", '\0', OptionFlags.NONE, OptionArg.STRING, ref img_path, "path of the image", "path" },
 		{ "id", '\0', OptionFlags.NONE, OptionArg.INT, ref id_gresource, "id of gresource image (random by default)", "id" },
+		{ "id", '\0', OptionFlags.NONE, OptionArg.INT, ref id_gresource, "id of gresource image (random by default)", "id" },
+		{ "x", '\0', OptionFlags.NONE, OptionArg.INT, ref nb_x, "number of tiles on x (default 7)", "nb-x" },
+		{ "y", '\0', OptionFlags.NONE, OptionArg.INT, ref nb_y, "number of tiles on y (default 4)", "nb-y" },
 		{ null }
 	};
 

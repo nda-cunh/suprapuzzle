@@ -1,5 +1,8 @@
 using Gtk;
 
+public int WIDTH_MONITOR;
+public int HEIGHT_MONITOR;
+
 private Gtk.ApplicationWindow win; // main window
 public string? img_puzzle = null; // image path
 
@@ -18,6 +21,16 @@ public class SupraApplication : Gtk.Application {
 	}
 
 
+	private void close_puzzle () {
+		print(
+"╭─────────────────────────────────────────────────────────╮\n" + 
+"│ Si tu aimes mon Puzzle laisse une étoile sur Github !!! │\n" + 
+"│ Link: \033[1;94mhttps://github.com/nda-cunh/suprapuzzle\033[;0m           │\n" +
+"│ Merci !!!                                               │\n" +
+"╰─────────────────────────────────────────────────────────╯\n"
+);
+		base.quit ();
+	}
 	public void init_after_realize () throws Error {
 		// Create the Window fullscreen
 		var overlay = new Gtk.Overlay();
@@ -26,12 +39,14 @@ public class SupraApplication : Gtk.Application {
 		unowned var display = Gdk.Display.get_default ();
 		var monitor = display.get_monitor_at_surface (win.get_surface ());
 		var geometry = monitor.get_geometry ();
+		WIDTH_MONITOR = geometry.width;
+		HEIGHT_MONITOR = geometry.height;
 		my_puzzle.init_puzzle (geometry.width, geometry.height);
 
 		var menu = new Menu ();
 
 		menu.onFinish.connect (()=> {
-			print ("laisse une petite etoile ici https://github.com/nda-cunh/suprapuzzle <3");
+			close_puzzle ();
 			base.quit ();
 		});
 
@@ -59,8 +74,16 @@ public class SupraApplication : Gtk.Application {
 		((Widget)win).add_controller (event_controller);
 
 		my_puzzle.onFinish.connect (() => {
-			win.close ();
-			win.dispose ();
+			// var gif = new Gif("/nfs/homes/nda-cunh/Downloads/giphy.gif");
+			// var picture = new Gtk.Picture.for_paintable (gif);
+			// overlay.add_overlay (picture);
+			var conf = new Confetit ();
+			overlay.add_overlay (conf);
+
+			Timeout.add (6000, () => {
+				close_puzzle ();
+				return false;
+			});
 		});
 
 		win.child = overlay;

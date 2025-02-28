@@ -15,22 +15,22 @@ string []count_resource () throws Error {
 public class Puzzle : Gtk.DrawingArea {
 	private int cols = 7;
 	private int rows = 4;
-	Gdk.Pixbuf pixbuf; 
-	Tile[] tab2;
-	Gtk.EventControllerMotion motion_controller = new Gtk.EventControllerMotion ();
-	Gtk.GestureClick click_gesture = new Gtk.GestureClick ();
-	unowned Tile? selected_tile = null;
-	double grab_x = 0;
-	double grab_y = 0;
+	private Gdk.Pixbuf pixbuf; 
+	private Tile[] tab_tiles;
+	private Gtk.EventControllerMotion motion_controller = new Gtk.EventControllerMotion ();
+	private Gtk.GestureClick click_gesture = new Gtk.GestureClick ();
+	private unowned Tile? selected_tile = null;
+	private double grab_x = 0;
+	private double grab_y = 0;
+	private bool have_border = true;
+	private double grab_padding_x = 0.0;
+	private double grab_padding_y = 0.0;
 
 	public Puzzle (int id, string? img_path, int nb_x, int nb_y) throws Error {
 		cols = nb_x;
 		rows = nb_y;
 
-
 		set_draw_func (draw_func);
-		// pixbuf = new Gdk.Pixbuf.from_resource (img_path);
-
 
 		{
 			if (id != 0) {
@@ -60,15 +60,9 @@ public class Puzzle : Gtk.DrawingArea {
 		});
 	}
 
-	private bool have_border = true;
 
-	private double grab_padding_x = 0.0;
-	private double grab_padding_y = 0.0;
-
-	public void pressed (int button, double x, double y) {
-		if (is_shuffling)
-			return;
-		foreach (unowned var tile in tab2) {
+	private void pressed (int button, double x, double y) {
+		foreach (unowned var tile in tab_tiles) {
 			if (tile.collisio_with_point (x, y)) {
 				selected_tile = tile;
 				tile.visible = false;
@@ -81,31 +75,30 @@ public class Puzzle : Gtk.DrawingArea {
 		}
 	}
 	
-	public void onMove (double x, double y) {
+	private void onMove (double x, double y) {
 		if (selected_tile != null) {
 			grab_x = x - grab_padding_x;
 			grab_y = y - grab_padding_y;
 		}
 		else {
-			foreach (unowned var tile in tab2) {
+			foreach (unowned var tile in tab_tiles) {
 				tile.hover = tile.collisio_with_point (x, y);
 			}
 		}
 		queue_draw ();
 	}
 
-	public void released (int button, double x, double y) {
-		// print ("Mouse released at: [%d] %g, %g\n", button, x, y);
+	private void released (int button, double x, double y) {
 		if (selected_tile != null) {
 			selected_tile.visible = true;
-			foreach (unowned var tile in tab2) {
+			foreach (unowned var tile in tab_tiles) {
 				if (tile.collisio_with_point (x, y)) {
 					tile.swap(selected_tile);
 				}
 			}
 			queue_draw ();
 			selected_tile = null;
-			foreach (unowned var tile in tab2) {
+			foreach (unowned var tile in tab_tiles) {
 				if (!tile.is_sort ()) {
 					return;
 				}
@@ -124,8 +117,8 @@ public class Puzzle : Gtk.DrawingArea {
 		int piece_width = width / cols;
 		int piece_height = height / rows;
 
-		// les pieces doivent etre carrées donc on prend la plus petite dimension
 		int piece_size = int.min(piece_width, piece_height);
+
 		// calculer le padding pour centrer les pieces
 		if (piece_width < piece_height) {
 			padding_center_y = ((piece_height * rows) - (piece_size * rows)) / 2;
@@ -137,52 +130,44 @@ public class Puzzle : Gtk.DrawingArea {
 		// Redimensionner l'image pour qu'elle s'adapte à la taille de la fenêtre
 		Gdk.Pixbuf scaled_pixbuf = pixbuf.scale_simple (piece_size * cols, piece_size * rows, Gdk.InterpType.BILINEAR);
 
-		tab2 = new Tile[cols * rows];
+		tab_tiles = new Tile[cols * rows];
 		
-		for (int i = 0; i < tab2.length; ++i)
+		for (int i = 0; i < tab_tiles.length; ++i)
 		{
-			tab2[i] = new Tile (piece_size);
+			tab_tiles[i] = new Tile (piece_size);
 		}
 
 		// Dessiner chaque sous-image
 		for (int row = 0; row < rows; ++row) {
 			for (int col = 0; col < cols; ++col) {
+				int tile = row * cols + col;
 				// Dessiner chaque sous-image
-				{
-					int x = col * piece_size;
-					int y = row * piece_size;
-					tab2[row * cols + col].paint (scaled_pixbuf, x, y);
-				}
+				int x = col * piece_size;
+				int y = row * piece_size;
+				tab_tiles[tile].paint (scaled_pixbuf, x, y);
 				// Positionner chaque sous-image
 				{
-					int p_x = padding_center_x + col * piece_size;
-					int p_y = padding_center_y + row * piece_size;
-					tab2[row * cols + col].init_point (p_x, p_y);
+					int p_x = padding_center_x + x;
+					int p_y = padding_center_y + y;
+					tab_tiles[tile].init_point (p_x, p_y);
 				}
 			}
 		}
-		shuffle.begin ();
+		shuffle();
 	}
 
-	private bool is_shuffling = false;
-
-	private async void shuffle () {
-		is_shuffling = true;
-		var tab_len = tab2.length;
-		for (int i = 0; i < 150; ++i)
+	private void shuffle () {
+		var tab_len = tab_tiles.length;
+		for (int i = 0; i < 4200; ++i)
 		{
 			int r1 = Random.int_range (0, tab_len);
 			int r2 = Random.int_range (0, tab_len);
-			tab2[r1].swap(tab2[r2]);
-			Timeout.add(8, shuffle.callback);
-			queue_draw ();
-			yield;
+			tab_tiles[r1].swap(tab_tiles[r2]);
 		}
-		is_shuffling = false;
 	}
 
-	public void draw_func (DrawingArea drawing_area, Context cr, int width, int height) {
-		foreach (unowned var tile in tab2) {
+	private void draw_func (DrawingArea drawing_area, Context cr, int width, int height) {
+		foreach (unowned var tile in tab_tiles) {
 			tile.draw (cr, have_border);
 		}
 

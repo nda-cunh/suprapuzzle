@@ -10,6 +10,7 @@ vala_src = [
   files('Tile.vala'),
   files('Menu.vala'),
   files('TimerClock.vala'),
+  files('Particle.vala'),
   config_vala,
 ]
 

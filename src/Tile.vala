@@ -32,13 +32,15 @@ public class Tile {
 		ctx.fill();
 	}
 
-	public void draw (Context cr) {
+	public void draw (Context cr, bool border = false) {
 		if (!visible) {
 			return;
 		}
 		const int margin = 1;
 		cr.set_source_surface (this.surface, x, y);
 		cr.paint ();
+		if (border == false)
+			return;
 		cr.rectangle (x, y, size, size);
 		cr.set_source_rgb (0, 0, 0);
 		cr.set_line_width (margin);

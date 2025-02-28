@@ -23,7 +23,6 @@ public class Puzzle : Gtk.DrawingArea {
 	double grab_x = 0;
 	double grab_y = 0;
 
-
 	public Puzzle (int id, string? img_path) throws Error {
 
 
@@ -52,8 +51,14 @@ public class Puzzle : Gtk.DrawingArea {
 		motion_controller.motion.connect (onMove);
 		click_gesture.pressed.connect (pressed);
 		click_gesture.released.connect (released);
+
+		this.onFinish.connect (() => {
+			have_border = false;
+			queue_draw ();
+		});
 	}
 
+	private bool have_border = true;
 
 	private double grab_padding_x = 0.0;
 	private double grab_padding_y = 0.0;
@@ -156,10 +161,11 @@ public class Puzzle : Gtk.DrawingArea {
 
 	private async void shuffle () {
 		is_shuffling = true;
-		for (int i = 0; i < 150; ++i)
+		var tab_len = tab2.length;
+		for (int i = 0; i < 1; ++i)
 		{
-			int r1 = Random.int_range (0, tab2.length);
-			int r2 = Random.int_range (0, tab2.length);
+			int r1 = Random.int_range (0, tab_len);
+			int r2 = Random.int_range (0, tab_len);
 			tab2[r1].swap(tab2[r2]);
 			Timeout.add(8, shuffle.callback);
 			queue_draw ();
@@ -170,7 +176,7 @@ public class Puzzle : Gtk.DrawingArea {
 
 	public void draw_func (DrawingArea drawing_area, Context cr, int width, int height) {
 		foreach (unowned var tile in tab2) {
-			tile.draw (cr);
+			tile.draw (cr, have_border);
 		}
 
 		if (selected_tile != null) {

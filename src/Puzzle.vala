@@ -164,7 +164,7 @@ public class Puzzle : Gtk.DrawingArea {
 	private async void shuffle () {
 		is_shuffling = true;
 		var tab_len = tab2.length;
-		for (int i = 0; i < 1; ++i)
+		for (int i = 0; i < 150; ++i)
 		{
 			int r1 = Random.int_range (0, tab_len);
 			int r2 = Random.int_range (0, tab_len);

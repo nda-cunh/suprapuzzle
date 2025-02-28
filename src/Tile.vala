@@ -36,7 +36,7 @@ public class Tile {
 		if (!visible) {
 			return;
 		}
-		const int margin = 1;
+		const double margin = 2;
 		cr.set_source_surface (this.surface, x, y);
 		cr.paint ();
 		if (border == false)

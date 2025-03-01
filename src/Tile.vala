@@ -1,9 +1,9 @@
 using Gtk;
 using Cairo;
 
-public class Tile {
+public class Tile : Object {
 	public Cairo.Surface surface {get;private set;}
-	public int size {get;private set;}
+	private int size; 
 	public bool visible = true;
 	public bool hover = false;
 
@@ -17,12 +17,17 @@ public class Tile {
 	}
 
 	public void swap (Tile other) {
-		int tmp_x = this.x;
-		int tmp_y = this.y;
-		this.x = other.x;
-		this.y = other.y;
-		other.x = tmp_x;
-		other.y = tmp_y;
+		if (this.x != other.x) {
+			this.x ^= other.x;
+			other.x ^= this.x;
+			this.x ^= other.x;
+		}
+
+		if (this.y != other.y) {
+			this.y ^= other.y;
+			other.y ^= this.y;
+			this.y ^= other.y;
+		}
 	}
 
 	public void paint (Gdk.Pixbuf pixbuf, int x, int y) {
@@ -43,8 +48,8 @@ public class Tile {
 		if (border == false)
 			return;
 		if (hover) {
-			cr.rectangle (x, y, size, size);
 			cr.set_source_rgba (0, 0, 0, 0.2);
+			cr.rectangle (x, y, size, size);
 			cr.fill ();
 		}
 		cr.rectangle (x, y, size, size);

@@ -1,7 +1,7 @@
 using Gtk;
 using Cairo;
 
-string []count_resource () throws Error {
+private string []count_resource () throws Error {
 	var strv = resources_enumerate_children ("/data", GLib.ResourceLookupFlags.NONE);
 	string []tabb_jpeg = {};
 	foreach (unowned var i in strv) {
@@ -68,9 +68,7 @@ public class Puzzle : Gtk.DrawingArea {
 		int index = path.index_of_char (':');
 		if (index != -1) {
 			unowned string ptr = path.offset(index);
-			print ("path: %s\n", ptr);
 			ptr.scanf (":%d_%d", out cols, out rows);
-			print (@"cols: $cols, rows: $rows\n");
 			if (cols < 1 || rows < 1) {
 				cols = 7;
 				rows = 4;
@@ -138,15 +136,11 @@ public class Puzzle : Gtk.DrawingArea {
 		int piece_size = int.min(piece_width, piece_height);
 
 		// calculer le padding pour centrer les pieces
-		if (piece_width < piece_height) {
-			padding_center_y = ((piece_height * rows) - (piece_size * rows)) / 2;
-		}
-		if (piece_height < piece_width) {
-			padding_center_x = ((piece_width * cols) - (piece_size * cols)) / 2;
-		}
+		padding_center_y = (height - (piece_size * rows)) / 2;
+		padding_center_x = (width - (piece_size * cols)) / 2; 
 
 		// Redimensionner l'image pour qu'elle s'adapte à la taille de la fenêtre
-		Gdk.Pixbuf scaled_pixbuf = pixbuf.scale_simple (piece_size * cols, piece_size * rows, Gdk.InterpType.BILINEAR);
+		var scaled_pixbuf = pixbuf.scale_simple (piece_size * cols, piece_size * rows, Gdk.InterpType.BILINEAR);
 
 		tab_tiles = new Tile[cols * rows];
 		
@@ -156,30 +150,34 @@ public class Puzzle : Gtk.DrawingArea {
 		}
 
 		// Dessiner chaque sous-image
+		int index = 0;
 		for (int row = 0; row < rows; ++row) {
 			for (int col = 0; col < cols; ++col) {
-				int tile = row * cols + col;
+				// int tile = row * cols + col;
 				// Dessiner chaque sous-image
 				int x = col * piece_size;
 				int y = row * piece_size;
-				tab_tiles[tile].paint (scaled_pixbuf, x, y);
+				tab_tiles[index].paint (scaled_pixbuf, x, y);
 				// Positionner chaque sous-image
 				{
 					int p_x = padding_center_x + x;
 					int p_y = padding_center_y + y;
-					tab_tiles[tile].init_point (p_x, p_y);
+					tab_tiles[index].init_point (p_x, p_y);
 				}
+				++index;
 			}
 		}
 		shuffle();
 	}
 
 	private void shuffle () {
+		var rand = new Rand ();
 		var tab_len = tab_tiles.length;
+
 		for (int i = 0; i < 4200; ++i)
 		{
-			int r1 = Random.int_range (0, tab_len);
-			int r2 = Random.int_range (0, tab_len);
+			int r1 = rand.int_range (0, tab_len);
+			int r2 = rand.int_range (0, tab_len);
 			tab_tiles[r1].swap(tab_tiles[r2]);
 		}
 	}

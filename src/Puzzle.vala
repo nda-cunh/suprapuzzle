@@ -38,13 +38,17 @@ public class Puzzle : Gtk.DrawingArea {
 				if (id > img_randomize.length || id < 0)
 					throw new FileError.ACCES(@"id: ($id) not found");
 				pixbuf = new Gdk.Pixbuf.from_resource (@"/data/" + img_randomize[id - 1]);
+				change_size_tile (img_randomize[id - 1]);
 			}
-			else if (img_path != null)
+			else if (img_path != null) {
 				pixbuf = new Gdk.Pixbuf.from_file (img_path);
+				change_size_tile (img_path);
+			}
 			else {
 				var img_randomize = count_resource ();
 				var nb_random = Random.int_range (0, img_randomize.length);
 				pixbuf = new Gdk.Pixbuf.from_resource ("/data/" + img_randomize[nb_random]);
+				change_size_tile (img_randomize[nb_random]);
 			}
 		}
 
@@ -58,6 +62,20 @@ public class Puzzle : Gtk.DrawingArea {
 			have_border = false;
 			queue_draw ();
 		});
+	}
+
+	private void change_size_tile (string path) {
+		int index = path.index_of_char (':');
+		if (index != -1) {
+			unowned string ptr = path.offset(index);
+			print ("path: %s\n", ptr);
+			ptr.scanf (":%d_%d", out cols, out rows);
+			print (@"cols: $cols, rows: $rows\n");
+			if (cols < 1 || rows < 1) {
+				cols = 7;
+				rows = 4;
+			}
+		}
 	}
 
 

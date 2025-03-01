@@ -174,8 +174,8 @@ public class SupraApplication : Gtk.Application {
 		{ "img", '\0', OptionFlags.NONE, OptionArg.STRING, ref img_path, "path of the image", "path" },
 		{ "id", '\0', OptionFlags.NONE, OptionArg.INT, ref id_gresource, "id of gresource image (random by default)", "id" },
 		{ "id", '\0', OptionFlags.NONE, OptionArg.INT, ref id_gresource, "id of gresource image (random by default)", "id" },
-		{ "x", '\0', OptionFlags.NONE, OptionArg.INT, ref nb_x, "number of tiles on x (default 7)", "nb-x" },
-		{ "y", '\0', OptionFlags.NONE, OptionArg.INT, ref nb_y, "number of tiles on y (default 4)", "nb-y" },
+		{ "x", 'x', OptionFlags.NONE, OptionArg.INT, ref nb_x, "number of tiles on x (default 7)", "nb-x" },
+		{ "y", 'y', OptionFlags.NONE, OptionArg.INT, ref nb_y, "number of tiles on y (default 4)", "nb-y" },
 		{ null }
 	};
 

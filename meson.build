@@ -1,4 +1,4 @@
-project('suprapuzzle', ['c', 'vala'], version : '1.4',
+project('suprapuzzle', ['c', 'vala'], version : '2.0',
   default_options : ['warning_level=0', 'optimization=3', 'buildtype=release'],
   meson_version: '>= 1.5.0')
 
@@ -54,20 +54,3 @@ conf_data.set('version', meson.project_version())
 ############################################
 
 subdir('src')
-
-
-
-
-# useless for now
-
-# Module LIBPORTAL for screen capture 
-# subproject ('libportal',
-  # default_options : [
-    # 'optimization=3',
-    # 'docs=false',
-    # 'tests=false',
-    # 'default_library=both',
-    # 'backend-gtk3=disabled',
-    # 'backend-qt5=disabled',
-    # 'backend-qt6=disabled',
-# ])

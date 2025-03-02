@@ -4,6 +4,6 @@ author: nda-cunh
 binary: @name@ 
 description: @description@ 
 dependency: 
-arch: auto 
+arch:
 exclude_package: 
 optional_dependency: 

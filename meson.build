@@ -54,3 +54,19 @@ conf_data.set('version', meson.project_version())
 ############################################
 
 subdir('src')
+
+
+# Suprapack
+if find_program('suprapack', required: false).found()
+  description = 'a simple puzzle game if your session is not locked'
+  conf_data = configuration_data()
+
+  conf_data.set('name', meson.project_name())
+  conf_data.set('version', meson.project_version())
+  conf_data.set('description', description)
+
+  info_file = configure_file(input : 'info.in', output : 'info', configuration : conf_data)
+
+  install_data(info_file, install_dir: '.')
+  meson.add_install_script('suprapack_build.sh')
+endif

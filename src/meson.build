@@ -21,7 +21,6 @@ vala_deps = [
 ]
 
 vala_args = [
-  '--debug',
 ]
 
 if get_option('is_troll') == true

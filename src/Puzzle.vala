@@ -12,6 +12,32 @@ private string []count_resource () throws Error {
 	return tabb_jpeg;
 }
 
+[Compact]
+class Worker {
+	public unowned Gdk.Pixbuf pixbuf;
+	public unowned Tile tile;
+	public int x;
+	public int y;
+	public int padding_center_x;
+	public int padding_center_y;
+
+	public Worker (int x, int y, Gdk.Pixbuf pixbuf, Tile tile, int padding_center_x, int padding_center_y) {
+		this.x = x;
+		this.y = y;
+		this.pixbuf = pixbuf;
+		this.tile = tile;
+		this.padding_center_x = padding_center_x;
+		this.padding_center_y = padding_center_y;
+	}
+
+	public void run () {
+		int p_x = padding_center_x + x;
+		int p_y = padding_center_y + y;
+		tile.init_point (p_x, p_y);
+		tile.paint (pixbuf, x, y);
+	}
+}
+
 public class Puzzle : Gtk.DrawingArea {
 	private int cols = 7;
 	private int rows = 4;
@@ -126,7 +152,7 @@ public class Puzzle : Gtk.DrawingArea {
 	public signal void onFinish ();
 
 
-	public void init_puzzle (int width, int height) {
+	public void init_puzzle (int width, int height) throws Error {
 		// Obtenir les dimensions de chaque sous-image
 		int padding_center_x = 0;
 		int padding_center_y = 0;
@@ -149,6 +175,11 @@ public class Puzzle : Gtk.DrawingArea {
 			tab_tiles[i] = new Tile (piece_size);
 		}
 
+		var timer = new Timer ();
+		// 16 new threads
+		var pool = new ThreadPool<Worker>.with_owned_data ((worker) => {
+			worker.run();
+		}, (int)get_num_processors (), false);
 		// Dessiner chaque sous-image
 		int index = 0;
 		for (int row = 0; row < rows; ++row) {
@@ -157,24 +188,24 @@ public class Puzzle : Gtk.DrawingArea {
 				// Dessiner chaque sous-image
 				int x = col * piece_size;
 				int y = row * piece_size;
-				tab_tiles[index].paint (scaled_pixbuf, x, y);
-				// Positionner chaque sous-image
-				{
-					int p_x = padding_center_x + x;
-					int p_y = padding_center_y + y;
-					tab_tiles[index].init_point (p_x, p_y);
-				}
+				pool.add (new Worker(x, y, scaled_pixbuf, tab_tiles[index], padding_center_x, padding_center_y));
 				++index;
 			}
 		}
+		while (pool.unprocessed () != 0)
+			;
+		print ("Draw: %g\n", timer.elapsed ());
+		timer.reset ();
 		shuffle();
+		print ("Swap : %g\n", timer.elapsed ());
+		// 16 destroy thread
 	}
 
 	private void shuffle () {
 		var rand = new Rand ();
 		var tab_len = tab_tiles.length;
 
-		for (int i = 0; i < 4200; ++i)
+		for (int i = 0; i < 42000; ++i)
 		{
 			int r1 = rand.int_range (0, tab_len);
 			int r2 = rand.int_range (0, tab_len);

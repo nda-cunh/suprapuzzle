@@ -9,7 +9,6 @@ public class Tile : Object {
 
 	public Tile (int size) {
 		this.size = size;
-		surface = new Cairo.ImageSurface (Cairo.Format.ARGB32, size, size);
 	}
 
 	public bool collisio_with_point (double x, double y) {
@@ -17,25 +16,23 @@ public class Tile : Object {
 	}
 
 	public void swap (Tile other) {
-		if (this.x != other.x) {
-			this.x ^= other.x;
-			other.x ^= this.x;
-			this.x ^= other.x;
-		}
-
-		if (this.y != other.y) {
-			this.y ^= other.y;
-			other.y ^= this.y;
-			this.y ^= other.y;
-		}
+		int tmp = this.x;
+		this.x = other.x;
+		other.x = tmp;
+		tmp = this.y;
+		this.y = other.y;
+		other.y = tmp;
 	}
 
 	public void paint (Gdk.Pixbuf pixbuf, int x, int y) {
+		surface = new Cairo.ImageSurface (Cairo.Format.ARGB32, size, size);
 		var ctx = new Cairo.Context(this.surface); 
 
-		Gdk.cairo_set_source_pixbuf (ctx, pixbuf, -x, -y);
-		ctx.rectangle (0, 0, size, size);
-		ctx.fill();
+		var tmp_pixbuf = new Gdk.Pixbuf (pixbuf.colorspace, false, pixbuf.bits_per_sample, size, size);
+		pixbuf.copy_area (x, y, size, size, tmp_pixbuf, 0, 0);
+		// charge toute l'image en ENTIERE
+		Gdk.cairo_set_source_pixbuf (ctx, tmp_pixbuf, 0, 0);
+		ctx.paint();
 	}
 
 	public void draw (Context cr, bool border = false) {

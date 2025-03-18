@@ -11,12 +11,13 @@ public class Tile : Object {
 		this.size = size;
 	}
 
-	public bool collisio_with_point (double x, double y) {
+	public inline bool collisio_with_point (double x, double y) {
 		return x >= this.x && x <= this.x + size && y >= this.y && y <= this.y + size;
 	}
 
-	public void swap (Tile other) {
+	public inline void swap (Tile other) {
 		int tmp = this.x;
+
 		this.x = other.x;
 		other.x = tmp;
 		tmp = this.y;
@@ -30,7 +31,6 @@ public class Tile : Object {
 
 		var tmp_pixbuf = new Gdk.Pixbuf (pixbuf.colorspace, false, pixbuf.bits_per_sample, size, size);
 		pixbuf.copy_area (x, y, size, size, tmp_pixbuf, 0, 0);
-		// charge toute l'image en ENTIERE
 		Gdk.cairo_set_source_pixbuf (ctx, tmp_pixbuf, 0, 0);
 		ctx.paint();
 	}
@@ -55,7 +55,7 @@ public class Tile : Object {
 		cr.stroke ();
 	}
 	
-	public bool is_sort () {
+	public inline bool is_sort () {
 		return x == default_x && y == default_y;
 	}
 

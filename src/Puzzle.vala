@@ -13,7 +13,7 @@ private string []count_resource () throws Error {
 }
 
 [Compact]
-class Worker {
+private class Worker {
 	public unowned Gdk.Pixbuf pixbuf;
 	public unowned Tile tile;
 	public int x;
@@ -175,37 +175,32 @@ public class Puzzle : Gtk.DrawingArea {
 			tab_tiles[i] = new Tile (piece_size);
 		}
 
-		var timer = new Timer ();
-		// 16 new threads
+		// Créer un pool de threads pour dessiner sur chaque tuiles 
 		var pool = new ThreadPool<Worker>.with_owned_data ((worker) => {
 			worker.run();
 		}, (int)get_num_processors (), false);
-		// Dessiner chaque sous-image
+
 		int index = 0;
 		for (int row = 0; row < rows; ++row) {
 			for (int col = 0; col < cols; ++col) {
-				// int tile = row * cols + col;
-				// Dessiner chaque sous-image
 				int x = col * piece_size;
 				int y = row * piece_size;
 				pool.add (new Worker(x, y, scaled_pixbuf, tab_tiles[index], padding_center_x, padding_center_y));
 				++index;
 			}
 		}
+		// Attendre que tous les taches soient terminées
 		while (pool.unprocessed () != 0)
 			;
-		print ("Draw: %g\n", timer.elapsed ());
-		timer.reset ();
+		// Mélanger les tuiles
 		shuffle();
-		print ("Swap : %g\n", timer.elapsed ());
-		// 16 destroy thread
 	}
 
 	private void shuffle () {
 		var rand = new Rand ();
 		var tab_len = tab_tiles.length;
 
-		for (int i = 0; i < 42000; ++i)
+		for (int i = 0; i < 40000; ++i)
 		{
 			int r1 = rand.int_range (0, tab_len);
 			int r2 = rand.int_range (0, tab_len);
@@ -224,5 +219,3 @@ public class Puzzle : Gtk.DrawingArea {
 		}
 	}
 }
-
-

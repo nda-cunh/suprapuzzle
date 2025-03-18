@@ -17,7 +17,7 @@ public struct Particle {
         for (int i = 0; i < 100; ++i) {
             x = rand.double_range(0, WIDTH_MONITOR);
             y = rand.double_range(-800, 0);
-            radius = rand.double_range(1, 9);
+            radius = rand.double_range(2, 9);
             r = rand.next_double();
             g = rand.next_double();
             b = rand.next_double();

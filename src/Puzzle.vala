@@ -151,7 +151,6 @@ public class Puzzle : Gtk.DrawingArea {
 
 	public signal void onFinish ();
 
-
 	public void init_puzzle (int width, int height) throws Error {
 		// Obtenir les dimensions de chaque sous-image
 		int padding_center_x = 0;
@@ -214,7 +213,7 @@ public class Puzzle : Gtk.DrawingArea {
 		}
 
 		if (selected_tile != null) {
-			cr.set_source_surface (selected_tile.surface, grab_x, grab_y);
+			Gdk.cairo_set_source_pixbuf (cr, selected_tile.pixbuf, grab_x, grab_y);
 			cr.paint ();
 		}
 	}

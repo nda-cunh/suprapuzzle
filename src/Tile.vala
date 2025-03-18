@@ -1,11 +1,16 @@
 using Gtk;
 using Cairo;
 
-public class Tile : Object {
-	public Cairo.Surface surface {get;private set;}
-	private int size; 
+[Compact]
+public class Tile {
+	public Gdk.Pixbuf pixbuf; 
+	public int size; 
 	public bool visible = true;
 	public bool hover = false;
+	public int default_x = 0;
+	public int default_y = 0;
+	public int x;
+	public int y;
 
 	public Tile (int size) {
 		this.size = size;
@@ -25,14 +30,9 @@ public class Tile : Object {
 		other.y = tmp;
 	}
 
-	public void paint (Gdk.Pixbuf pixbuf, int x, int y) {
-		surface = new Cairo.ImageSurface (Cairo.Format.ARGB32, size, size);
-		var ctx = new Cairo.Context(this.surface); 
-
-		var tmp_pixbuf = new Gdk.Pixbuf (pixbuf.colorspace, false, pixbuf.bits_per_sample, size, size);
-		pixbuf.copy_area (x, y, size, size, tmp_pixbuf, 0, 0);
-		Gdk.cairo_set_source_pixbuf (ctx, tmp_pixbuf, 0, 0);
-		ctx.paint();
+	public void paint (Gdk.Pixbuf image, int x, int y) {
+		pixbuf = new Gdk.Pixbuf (image.colorspace, false, image.bits_per_sample, size, size);
+		image.copy_area (x, y, size, size, pixbuf, 0, 0);
 	}
 
 	public void draw (Context cr, bool border = false) {
@@ -40,7 +40,7 @@ public class Tile : Object {
 			return;
 		}
 		const double margin = 2;
-		cr.set_source_surface (this.surface, x, y);
+		Gdk.cairo_set_source_pixbuf (cr, pixbuf, x, y);
 		cr.paint ();
 		if (border == false)
 			return;
@@ -59,16 +59,10 @@ public class Tile : Object {
 		return x == default_x && y == default_y;
 	}
 
-	private int default_x = 0;
-	private int default_y = 0;
-
 	public void init_point (int x, int y) {
 		default_x = x;
 		default_y = y;
 		this.x = x;
 		this.y = y;
 	}
-
-	public int x;
-	public int y;
 } 

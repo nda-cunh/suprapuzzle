@@ -1,4 +1,4 @@
-project('suprapuzzle', ['c', 'vala'], version : '2.1',
+project('suprapuzzle', ['c', 'vala'], version : '2.2',
   default_options : ['warning_level=0', 'optimization=3', 'buildtype=release'],
   meson_version: '>= 1.5.0')
 

@@ -5,12 +5,13 @@ config_vala = configure_file(input : 'config.vala.in',
                configuration : conf_data)
 
 vala_src = [
-  files('main.vala'),
-  files('Puzzle.vala'),
-  files('Tile.vala'),
-  files('Menu.vala'),
-  files('TimerClock.vala'),
-  files('Particle.vala'),
+  files('main.vala',
+  'Puzzle.vala',
+  'Tile.vala',
+  'Menu.vala',
+  'TimerClock.vala',
+  'GnomeExtension.vala',
+  'Particle.vala'),
   config_vala,
 ]
 

@@ -11,6 +11,8 @@ public class SupraApplication : Gtk.Application {
 		application_id = "com.SupraPuzzle.App";
 	}
 
+	GnomeExtension gnome_extension = new GnomeExtension ();
+
 	/**
 	** Load the css style
 	**/
@@ -22,6 +24,7 @@ public class SupraApplication : Gtk.Application {
 
 
 	private void close_puzzle () {
+		gnome_extension.enable();
 		print(
 "╭─────────────────────────────────────────────────────────╮\n" + 
 "│ Si tu aimes mon Puzzle laisse une étoile sur Github !!! │\n" + 
@@ -74,9 +77,6 @@ public class SupraApplication : Gtk.Application {
 		((Widget)win).add_controller (event_controller);
 
 		my_puzzle.onFinish.connect (() => {
-			// var gif = new Gif("/nfs/homes/nda-cunh/Downloads/giphy.gif");
-			// var picture = new Gtk.Picture.for_paintable (gif);
-			// overlay.add_overlay (picture);
 			var conf = new Confetit ();
 			overlay.add_overlay (conf);
 
@@ -157,6 +157,7 @@ public class SupraApplication : Gtk.Application {
 	**/
 	public override void activate () {
 		try {
+			gnome_extension.disable();
 			init_overlay ();
 		} catch (Error e) {
 			printerr (e.message);

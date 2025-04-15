@@ -1,12 +1,17 @@
-public class GnomeExtension {
+public errordomain GnomeError {
+	NOT_FOUND = 1,
+}
+
+public class GnomeExtension : Object {
 	SettingsSchema s;
 	Settings schemas;
 
-	public GnomeExtension () {
-		s = SettingsSchemaSource.get_default().lookup("org.gnome.shell", true);
+
+	public GnomeExtension () throws Error {
+		s = SettingsSchemaSource.get_default()?.lookup("org.gnome.shell", true);
 		if (s == null || s.has_key("disable-user-extensions") == false) {
 			print ("Schema not found\n");
-			return;
+			throw new GnomeError.NOT_FOUND ("Schema not found");
 		}
 		schemas = new Settings.full (s, null, null);
 	}
@@ -23,4 +28,3 @@ public class GnomeExtension {
 		Settings.sync ();
 	}
 }
-

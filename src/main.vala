@@ -7,11 +7,17 @@ private Gtk.ApplicationWindow win; // main window
 public string? img_puzzle = null; // image path
 
 public class SupraApplication : Gtk.Application {
+	GnomeExtension gnome_extension;
 	construct {
+		try {
+			gnome_extension = new GnomeExtension ();
+		}
+		catch (Error e) {
+			gnome_extension = null;
+		}
 		application_id = "com.SupraPuzzle.App";
 	}
 
-	GnomeExtension gnome_extension = new GnomeExtension ();
 
 	/**
 	** Load the css style
@@ -24,7 +30,7 @@ public class SupraApplication : Gtk.Application {
 
 
 	private void close_puzzle () {
-		gnome_extension.enable();
+		gnome_extension?.enable();
 		print(
 "╭─────────────────────────────────────────────────────────╮\n" + 
 "│ Si tu aimes mon Puzzle laisse une étoile sur Github !!! │\n" + 
@@ -123,9 +129,16 @@ public class SupraApplication : Gtk.Application {
 		Widget win_widget = win as Widget;
 		win_widget.realize.connect (() => {
 			unowned var display = Gdk.Display.get_default () as Gdk.X11.Display;
+			if (display == null) {
+				return;
+			}
 			unowned var x11_d = display.get_xdisplay ();
 
 			var native = ((Widget)win).get_native ();
+			if (native == null) {
+				return;
+			}
+
 			var surface = native.get_surface () as Gdk.X11.Surface;
 
 			// wait for the window to be realized
@@ -157,7 +170,7 @@ public class SupraApplication : Gtk.Application {
 	**/
 	public override void activate () {
 		try {
-			gnome_extension.disable();
+			gnome_extension?.disable();
 			init_overlay ();
 		} catch (Error e) {
 			printerr (e.message);
@@ -207,6 +220,9 @@ public class SupraApplication : Gtk.Application {
 public void inibhit_system_shortcuts () {
 #if IS_BLOCKED
 	unowned var native = ((Widget)win).get_native ();
+	if (native == null) {
+		return;
+	}
 	unowned var surface = native.get_surface ();
 	if (surface is Gdk.Toplevel) {
 		surface.inhibit_system_shortcuts (null);

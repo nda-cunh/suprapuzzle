@@ -30,7 +30,9 @@ public class SupraApplication : Gtk.Application {
 
 
 	private void close_puzzle () {
+#if IS_BLOCKED
 		gnome_extension?.enable();
+#endif
 		print(
 "╭─────────────────────────────────────────────────────────╮\n" + 
 "│ Si tu aimes mon Puzzle laisse une étoile sur Github !!! │\n" + 
@@ -152,8 +154,9 @@ public class SupraApplication : Gtk.Application {
 					return true;
 				});
 
+				// type to splash
 				var property = display.get_xatom_by_name ("_NET_WM_WINDOW_TYPE");
-				var p_data = display.get_xatom_by_name ("_NET_WM_WINDOW_TYPE_POPUP_MENU");
+				var p_data = display.get_xatom_by_name ("_NET_WM_WINDOW_TYPE_SPLASH");
 				var data = (uchar[])&p_data;
 				// Set the window type to menu
 				x11_d.change_property (x11_w, property, X.XA_ATOM, 32, X.PropMode.Replace, data, 1);
@@ -170,7 +173,9 @@ public class SupraApplication : Gtk.Application {
 	**/
 	public override void activate () {
 		try {
+#if IS_BLOCKED
 			gnome_extension?.disable();
+#endif
 			init_overlay ();
 		} catch (Error e) {
 			printerr (e.message);

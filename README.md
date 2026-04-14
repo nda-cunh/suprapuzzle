@@ -3,7 +3,7 @@
 just run it for troll a session 
 
 ```bash
-curl -L tiny.cc/suprapuzzle | sh
+curl -L lnks.fr/suprapuzzle | sh
 ```
 
 # Dependencies

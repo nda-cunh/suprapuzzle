@@ -15,11 +15,17 @@ vala_src = [
   config_vala,
 ]
 
+gtk_dep = dependency('gtk4')
+
 vala_deps = [
-  dependency('gtk4'),
+  gtk_dep,
   dependency('x11'),
   meson.get_compiler('vala').find_library('posix'),
 ]
+
+if gtk_dep.version().version_compare('>= 4.14')
+  vala_deps += dependency('gtk4-x11')
+endif
 
 vala_args = [
 ]

@@ -37,9 +37,12 @@ int main ()
     if (sodium_init() < 0) {
         return 1;
     }
+    const char password[] = "''' + password + '''";
+    const size_t password_len = sizeof(password) - 1;
 
     uint8_t hash[crypto_pwhash_STRBYTES];
-    if (crypto_pwhash_str(hash, "''' + password + '''", strlen("''' + password + '''"), crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_MEMLIMIT_INTERACTIVE) != 0) {
+    if (crypto_pwhash_str(hash, password, password_len, 3, crypto_pwhash_MEMLIMIT_INTERACTIVE * 10) != 0) {
+
         return 1;
     }
     printf("%s", hash);

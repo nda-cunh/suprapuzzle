@@ -119,6 +119,32 @@ class  Password : Box {
 		vexpand = true;
 	}
 
+	public async void test_password (string password) {
+		init_sodium();
+		var t = new Thread<int> ("sodium-verify", ()=> {
+			int val = 0;
+			val = Sodium.Crypto.PwHash.str_verify (Config.PASSWORD, password, entry.text.length);
+			Idle.add (test_password.callback);
+			return val;
+		});
+		yield;
+		int val = t.join ();
+		if (val == 0) {
+			this.onGoodPassword();
+		}
+	}
+
+	private bool is_init_sodium = false;
+	private void init_sodium () {
+		if (is_init_sodium == false) {
+			if (Sodium.init () < 0) {
+				warning ("Failed to initialize libsodium");
+			}
+			is_init_sodium = true;
+		}
+	}
+
+	private uint id_timeout = 0;
 	public Password () {
 		label = new Label ("Password") {
 			css_classes = {"h3"}
@@ -131,13 +157,13 @@ class  Password : Box {
 			input_purpose = InputPurpose.NUMBER
 		};
 		entry.changed.connect (()=> {
-			if (Sodium.init () < 0) {
-				error ("Failed to initialize libsodium");
-			}
-			int v = Sodium.Crypto.PwHash.str_verify (Config.PASSWORD, entry.text, entry.text.length);
-			if (v == 0) {
-				this.onGoodPassword();
-			}
+			if (id_timeout != 0)
+				Source.remove (id_timeout);
+			id_timeout = Timeout.add (300, ()=> {
+				id_timeout = 0;
+				test_password.begin (entry.text.dup());
+				return false;
+			});
 		});
 
 		append(label);

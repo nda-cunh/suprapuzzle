@@ -20,6 +20,7 @@ gtk_dep = dependency('gtk4')
 vala_deps = [
   gtk_dep,
   dependency('x11'),
+  dependency('libsodium', static: true),
   meson.get_compiler('vala').find_library('posix'),
 ]
 

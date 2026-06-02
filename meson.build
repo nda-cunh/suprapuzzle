@@ -2,7 +2,8 @@ project('suprapuzzle', ['c', 'vala'], version : '2.2',
   default_options : ['warning_level=0', 'optimization=3', 'buildtype=release'],
   meson_version: '>= 1.5.0')
 
-# meson version 1.5.0
+vapi_dir = meson.current_source_dir() / 'vapi'
+add_project_arguments(['--vapidir', vapi_dir], language: 'vala')
 
 ############################################
 # Gresources and blueprints 
@@ -25,21 +26,32 @@ password = get_option('password')
 compiler = meson.get_compiler ('c')
 result = compiler.run('''
 #include <stdlib.h>
-#include <glib.h>
+#include <sodium.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
 
 int main ()
 {
-	char * res = g_compute_checksum_for_string (G_CHECKSUM_SHA512, "''' + password + '''", -1);
-	g_print ("%s", res);
-	free (res);
+    if (sodium_init() < 0) {
+        return 1;
+    }
+
+    uint8_t hash[crypto_pwhash_STRBYTES];
+    if (crypto_pwhash_str(hash, "''' + password + '''", strlen("''' + password + '''"), crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_MEMLIMIT_INTERACTIVE) != 0) {
+        return 1;
+    }
+    printf("%s", hash);
 	return 0;
 }
 ''',
-  dependencies: [dependency('glib-2.0')],
+  dependencies: [dependency('libsodium')],
   name: 'hash',
   required: true,
 )
 password = result.stdout()
+message('Password hash: ' + password)
 
 
 conf_data.set('password', password)

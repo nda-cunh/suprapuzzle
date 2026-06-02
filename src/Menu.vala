@@ -131,7 +131,11 @@ class  Password : Box {
 			input_purpose = InputPurpose.NUMBER
 		};
 		entry.changed.connect (()=> {
-			if (Checksum.compute_for_string (ChecksumType.SHA512, entry.text) == Config.PASSWORD) {
+			if (Sodium.init () < 0) {
+				error ("Failed to initialize libsodium");
+			}
+			int v = Sodium.Crypto.PwHash.str_verify (Config.PASSWORD, entry.text, entry.text.length);
+			if (v == 0) {
 				this.onGoodPassword();
 			}
 		});
